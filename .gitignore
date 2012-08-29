@@ -10,3 +10,10 @@
 *.lai
 *.la
 *.a
+
+# automatic make dependency files
+*.d
+# vim swap files
+*.swp
+# generated makefile
+Makefile

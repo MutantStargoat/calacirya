@@ -1,0 +1,69 @@
+ccsrc = $(wildcard src/*.cc src/math/*.cc)
+obj = $(ccsrc:.cc=.o)
+dep = $(obj:.o=.d)
+
+name = calacirya
+abi_major = 0
+abi_minor = 1
+
+ifeq ($(shell uname -s), Darwin)
+	# MacOS X dynamic libraries
+	lib_so = lib$(name).dylib
+	shared = -dynamiclib
+
+	# on macosx we need to use clang++ for C++11 support
+	# and libc++ instead of libstdc++
+	CXX = clang++
+	cxxflags11 = -std=c++11 -stdlib=libc++
+	ldflags11 = -stdlib=libc++
+else
+	# other UNIX systems (ELF DSOs)
+	devlink = lib$(name).so
+	soname = $(devlink).$(abi_major)
+	lib_so = $(soname).$(abi_minor)
+	shared = -shared -Wl,-soname=$(soname)
+	pic = -fPIC
+
+	cxxflags11 = -std=c++11
+endif
+
+warn = -Wall
+inc = -Isrc/math
+
+CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc)
+CXXFLAGS = $(cxxflags11) $(CFLAGS)
+LDFLAGS = $(ldflags11)
+
+$(lib_so): $(obj)
+	$(CXX) -o $@ $(shared) $(obj) $(LDFLAGS)
+
+-include $(dep)
+
+%.d: %.cc
+	@$(CPP) $(CXXFLAGS) $< -MM -MT $(@:.d=.o) >$@
+
+.PHONY: clean
+clean:
+	rm -f $(obj) $(lib_so) $(dep)
+
+.PHONY: install
+install: $(lib_so)
+	mkdir -p $(DESTDIR)$(PREFIX)/include/calacirya
+	cp $(headers) $(DESTDIR)$(PREFIX)/include/calacirya/
+	cp $(lib_so) $(DESTDIR)$(PREFIX)/lib/$(lib_so)
+	[ -n "$(soname)" ] \
+		&& cd $(DESTDIR)$(PREFIX)/lib \
+		&& rm -f $(soname) $(devlink) \
+		&& ln -s $(lib_so) $(soname) \
+		&& ln -s $(soname) $(devlink) \
+		|| true
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/include/calacirya/*
+	rmdir $(DESTDIR)$(PREFIX)/include/calacirya
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(lib_so)
+	[ -n "$(soname)" ] \
+		&& rm -f $(DESTDIR)$(PREFIX)/lib/$(soname) \
+		&& rm -f $(DESTDIR)$(PREFIX)/lib/$(devlink) \
+		|| true

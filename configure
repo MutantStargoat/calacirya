@@ -1,0 +1,52 @@
+#!/bin/sh
+
+prefix=/usr/local
+opt=false
+debug=true
+
+while [ $# -gt 1 ]; do
+	case $1 in
+	--prefix=*)
+		prefix=`echo $1 | sed 's/--prefix=//'`
+		;;
+
+	--enable-*)
+		`echo $1 | sed 's/--enable-//'`=true
+		;;
+	--disable-*)
+		`echo $1 | sed 's/--disable-//'`=false
+		;;
+
+	--help)
+		echo 'Usage: ./configure [options]'
+		echo 'Options:'
+		echo "  --prefix=<installation prefix> (default: $prefix)"
+		echo '  --enable-opt/--disable-opt     enable/disable optimizations'
+		echo '  --enable-debug/--disable-debug enable/disable debugging symbols'
+		echo '  --help                         print usage and exit'
+		exit 0
+		;;
+	esac
+	shift
+done
+
+echo "install prefix: $prefix"
+$opt &&   echo ' optimizations: enabled' || echo ' optimizations: disabled'
+$debug && echo '     debugging: enabled' || echo '     debugging: disabled'
+
+echo '# generated makefile, do not edit' >Makefile
+echo "PREFIX = $prefix" >>Makefile
+if $opt; then
+	echo 'opt = -O3 -ffast-math' >>Makefile
+fi
+if $debug; then
+	echo 'debug = -g' >>Makefile
+fi
+
+if ! cat build/Makefile.in >>Makefile; then
+	echo "can't find build/Makefile.in, make sure you run configure from the project root directory" >&2
+	rm -f Makefile
+	exit 1
+fi
+
+echo 'done, type make (or gmake) to build'
