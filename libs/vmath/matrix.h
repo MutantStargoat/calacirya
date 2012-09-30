@@ -1,28 +1,79 @@
 /*
-Calacirya is a photorealistic 3D renderer.
-Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
-               and Nikos Papadopoulos <nikpapas@gmail.com>
+libvmath - a vector math library
+Copyright (C) 2004-2011 John Tsiombikas <nuclear@member.fsf.org>
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+it under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_MATRIX_H_
-#define CALA_MATRIX_H_
 
+#ifndef VMATH_MATRIX_H_
+#define VMATH_MATRIX_H_
+
+#include <stdio.h>
+#include "vmath_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif	/* __cplusplus */
+
+/* C matrix 3x3 functions */
+static inline void m3_identity(mat3_t m);
+static inline void m3_cons(mat3_t m,
+		scalar_t m11, scalar_t m12, scalar_t m13,
+		scalar_t m21, scalar_t m22, scalar_t m23,
+		scalar_t m31, scalar_t m32, scalar_t m33);
+static inline void m3_copy(mat3_t dest, mat3_t src);
+void m3_to_m4(mat4_t dest, mat3_t src);
+
+void m3_print(FILE *fp, mat3_t m);
+
+/* C matrix 4x4 functions */
+static inline void m4_identity(mat4_t m);
+static inline void m4_cons(mat4_t m,
+		scalar_t m11, scalar_t m12, scalar_t m13, scalar_t m14,
+		scalar_t m21, scalar_t m22, scalar_t m23, scalar_t m24,
+		scalar_t m31, scalar_t m32, scalar_t m33, scalar_t m34,
+		scalar_t m41, scalar_t m42, scalar_t m43, scalar_t m44);
+static inline void m4_copy(mat4_t dest, mat4_t src);
+void m4_to_m3(mat3_t dest, mat4_t src);
+
+static inline void m4_mult(mat4_t res, mat4_t m1, mat4_t m2);
+
+void m4_translate(mat4_t m, scalar_t x, scalar_t y, scalar_t z);
+void m4_rotate(mat4_t m, scalar_t x, scalar_t y, scalar_t z);
+void m4_rotate_x(mat4_t m, scalar_t angle);
+void m4_rotate_y(mat4_t m, scalar_t angle);
+void m4_rotate_z(mat4_t m, scalar_t angle);
+void m4_rotate_axis(mat4_t m, scalar_t angle, scalar_t x, scalar_t y, scalar_t z);
+void m4_rotate_quat(mat4_t m, quat_t q);
+void m4_scale(mat4_t m, scalar_t x, scalar_t y, scalar_t z);
+static inline void m4_set_column(mat4_t m, vec4_t v, int idx);
+static inline void m4_set_row(mat4_t m, vec4_t v, int idx);
+
+void m4_transpose(mat4_t res, mat4_t m);
+scalar_t m4_determinant(mat4_t m);
+void m4_adjoint(mat4_t res, mat4_t m);
+void m4_inverse(mat4_t res, mat4_t m);
+
+void m4_print(FILE *fp, mat4_t m);
+
+#ifdef __cplusplus
+}
+
+/* when included from C++ source files, also define the matrix classes */
 #include <iostream>
-#include "mathdef.h"
 
-/* 3x3 matrix */
+/** 3x3 matrix */
 class Matrix3x3 {
 private:
 	scalar_t m[3][3];
@@ -36,6 +87,7 @@ public:
 				scalar_t m21, scalar_t m22, scalar_t m23,
 				scalar_t m31, scalar_t m32, scalar_t m33);
 	Matrix3x3(const Vector3 &ivec, const Vector3 &jvec, const Vector3 &kvec);
+	Matrix3x3(const mat3_t cmat);
 
 	Matrix3x3(const Matrix4x4 &mat4x4);
 
@@ -104,7 +156,7 @@ std::ostream &operator <<(std::ostream &out, const Matrix3x3 &mat);
 
 
 
-/* 4x4 matrix */
+/** 4x4 matrix */
 class Matrix4x4 {
 private:
 	scalar_t m[4][4];
@@ -118,6 +170,7 @@ public:
 				scalar_t m21, scalar_t m22, scalar_t m23, scalar_t m24,
 				scalar_t m31, scalar_t m32, scalar_t m33, scalar_t m34,
 				scalar_t m41, scalar_t m42, scalar_t m43, scalar_t m44);
+	Matrix4x4(const mat4_t cmat);
 
 	Matrix4x4(const Matrix3x3 &mat3x3);
 
@@ -183,6 +236,8 @@ void operator *=(Matrix4x4 &mat, scalar_t scalar);
 
 std::ostream &operator <<(std::ostream &out, const Matrix4x4 &mat);
 
+#endif	/* __cplusplus */
+
 #include "matrix.inl"
 
-#endif	/* CALA_MATRIX_H_ */
+#endif	/* VMATH_MATRIX_H_ */

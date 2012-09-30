@@ -1,38 +1,97 @@
 /*
-Calacirya is a photorealistic 3D renderer.
-Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
-               and Nikos Papadopoulos <nikpapas@gmail.com>
+libvmath - a vector math library
+Copyright (C) 2004-2011 John Tsiombikas <nuclear@member.fsf.org>
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+it under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_VECTOR_H_
-#define CALA_VECTOR_H_
 
+#ifndef VMATH_VECTOR_H_
+#define VMATH_VECTOR_H_
+
+#include <stdio.h>
+#include "vmath_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif	/* __cplusplus */
+
+/* C 2D vector functions */
+static inline vec2_t v2_cons(scalar_t x, scalar_t y);
+static inline void v2_print(FILE *fp, vec2_t v);
+
+static inline vec2_t v2_add(vec2_t v1, vec2_t v2);
+static inline vec2_t v2_sub(vec2_t v1, vec2_t v2);
+static inline vec2_t v2_scale(vec2_t v, scalar_t s);
+static inline scalar_t v2_dot(vec2_t v1, vec2_t v2);
+static inline scalar_t v2_length(vec2_t v);
+static inline scalar_t v2_length_sq(vec2_t v);
+static inline vec2_t v2_normalize(vec2_t v);
+
+static inline vec2_t v2_lerp(vec2_t v1, vec2_t v2, scalar_t t);
+
+/* C 3D vector functions */
+static inline vec3_t v3_cons(scalar_t x, scalar_t y, scalar_t z);
+static inline void v3_print(FILE *fp, vec3_t v);
+
+static inline vec3_t v3_add(vec3_t v1, vec3_t v2);
+static inline vec3_t v3_sub(vec3_t v1, vec3_t v2);
+static inline vec3_t v3_neg(vec3_t v);
+static inline vec3_t v3_mul(vec3_t v1, vec3_t v2);
+static inline vec3_t v3_scale(vec3_t v1, scalar_t s);
+static inline scalar_t v3_dot(vec3_t v1, vec3_t v2);
+static inline vec3_t v3_cross(vec3_t v1, vec3_t v2);
+static inline scalar_t v3_length(vec3_t v);
+static inline scalar_t v3_length_sq(vec3_t v);
+static inline vec3_t v3_normalize(vec3_t v);
+static inline vec3_t v3_transform(vec3_t v, mat4_t m);
+
+static inline vec3_t v3_rotate(vec3_t v, scalar_t x, scalar_t y, scalar_t z);
+static inline vec3_t v3_rotate_axis(vec3_t v, scalar_t angle, scalar_t x, scalar_t y, scalar_t z);
+static inline vec3_t v3_rotate_quat(vec3_t v, quat_t q);
+
+static inline vec3_t v3_reflect(vec3_t v, vec3_t n);
+
+static inline vec3_t v3_lerp(vec3_t v1, vec3_t v2, scalar_t t);
+
+/* C 4D vector functions */
+static inline vec4_t v4_cons(scalar_t x, scalar_t y, scalar_t z, scalar_t w);
+static inline void v4_print(FILE *fp, vec4_t v);
+
+static inline vec4_t v4_add(vec4_t v1, vec4_t v2);
+static inline vec4_t v4_sub(vec4_t v1, vec4_t v2);
+static inline vec4_t v4_neg(vec4_t v);
+static inline vec4_t v4_mul(vec4_t v1, vec4_t v2);
+static inline vec4_t v4_scale(vec4_t v, scalar_t s);
+static inline scalar_t v4_dot(vec4_t v1, vec4_t v2);
+static inline scalar_t v4_length(vec4_t v);
+static inline scalar_t v4_length_sq(vec4_t v);
+static inline vec4_t v4_normalize(vec4_t v);
+static inline vec4_t v4_transform(vec4_t v, mat4_t m);
+
+#ifdef __cplusplus
+}	/* extern "C" */
+
+/* when included from C++ source files, also define the vector classes */
 #include <iostream>
-#include "mathdef.h"
 
-class Vector3;
-class Vector4;
-class Matrix3x3;
-class Matrix4x4;
-class Quaternion;
-
+/** 2D Vector */
 class Vector2 {
 public:
 	scalar_t x, y;
 
 	Vector2(scalar_t x = 0.0, scalar_t y = 0.0);
+	Vector2(const vec2_t &vec);
 	Vector2(const Vector3 &vec);
 	Vector2(const Vector4 &vec);
 
@@ -96,8 +155,12 @@ public:
 	scalar_t x, y, z;
 
 	Vector3(scalar_t x = 0.0, scalar_t y = 0.0, scalar_t z = 0.0);
+	Vector3(const vec3_t &vec);
 	Vector3(const Vector2 &vec);
 	Vector3(const Vector4 &vec);
+	Vector3(const SphVector &sph);
+
+	Vector3 &operator =(const SphVector &sph);
 
 	inline scalar_t &operator [](int elem);
 	inline const scalar_t &operator [](int elem) const;
@@ -165,6 +228,7 @@ public:
 	scalar_t x, y, z, w;
 
 	Vector4(scalar_t x = 0.0, scalar_t y = 0.0, scalar_t z = 0.0, scalar_t w = 0.0);
+	Vector4(const vec4_t &vec);
 	Vector4(const Vector2 &vec);
 	Vector4(const Vector3 &vec);
 
@@ -221,6 +285,8 @@ inline Vector4 lerp(const Vector4 &v0, const Vector4 &v1, scalar_t t);
 inline Vector4 catmull_rom_spline(const Vector4 &v0, const Vector4 &v1,
 		const Vector4 &v2, const Vector4 &v3, scalar_t t);
 
+#endif	/* __cplusplus */
+
 #include "vector.inl"
 
-#endif	/* CALA_VECTOR_H_ */
+#endif	/* VMATH_VECTOR_H_ */

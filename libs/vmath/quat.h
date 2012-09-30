@@ -1,23 +1,64 @@
 /*
-Calacirya is a photorealistic 3D renderer.
-Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
-               and Nikos Papadopoulos <nikpapas@gmail.com>
+libvmath - a vector math library
+Copyright (C) 2004-2011 John Tsiombikas <nuclear@member.fsf.org>
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+it under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_QUATERNION_H_
-#define CALA_QUATERNION_H_
+
+#ifndef VMATH_QUATERNION_H_
+#define VMATH_QUATERNION_H_
+
+#include <stdio.h>
+#include "vmath_types.h"
+#include "vector.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif	/* __cplusplus */
+
+#define quat_cons(s, x, y, z)	v4_cons(x, y, z, s)
+#define quat_vec(q)				v3_cons((q).x, (q).y, (q).z)
+#define quat_s(q)				((q).w)
+#define quat_identity()			quat_cons(1.0, 0.0, 0.0, 0.0)
+void quat_print(FILE *fp, quat_t q);
+
+#define quat_add		v4_add
+#define quat_sub		v4_sub
+#define quat_neg		v4_neg
+
+static inline quat_t quat_mul(quat_t q1, quat_t q2);
+
+static inline quat_t quat_conjugate(quat_t q);
+
+#define quat_length		v4_length
+#define quat_length_sq	v4_length_sq
+
+#define quat_normalize	v4_normalize
+static inline quat_t quat_inverse(quat_t q);
+
+quat_t quat_rotate(quat_t q, scalar_t angle, scalar_t x, scalar_t y, scalar_t z);
+quat_t quat_rotate_quat(quat_t q, quat_t rotq);
+
+static inline void quat_to_mat3(mat3_t res, quat_t q);
+static inline void quat_to_mat4(mat4_t res, quat_t q);
+
+#define quat_lerp quat_slerp
+quat_t quat_slerp(quat_t q1, quat_t q2, scalar_t t);
+
+
+#ifdef __cplusplus
+}	/* extern "C" */
 
 #include <iostream>
 
@@ -31,6 +72,7 @@ public:
 	Quaternion(scalar_t s, const Vector3 &v);
 	Quaternion(scalar_t s, scalar_t x, scalar_t y, scalar_t z);
 	Quaternion(const Vector3 &axis, scalar_t angle);
+	Quaternion(const quat_t &quat);
 
 	Quaternion operator +(const Quaternion &quat) const;
 	Quaternion operator -(const Quaternion &quat) const;
@@ -69,6 +111,8 @@ inline Quaternion lerp(const Quaternion &q1, const Quaternion &q2, scalar_t t);
 
 std::ostream &operator <<(std::ostream &out, const Quaternion &q);
 
+#endif	/* __cplusplus */
+
 #include "quat.inl"
 
-#endif	/* CALA_QUATERNION_H_ */
+#endif	/* VMATH_QUATERNION_H_ */

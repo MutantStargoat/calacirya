@@ -1,23 +1,336 @@
 /*
-Calacirya is a photorealistic 3D renderer.
-Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
-               and Nikos Papadopoulos <nikpapas@gmail.com>
+libvmath - a vector math library
+Copyright (C) 2004-2011 John Tsiombikas <nuclear@member.fsf.org>
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+it under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* ----------- Vector2 ----------------- */
+#include <math.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif	/* __cplusplus */
+
+/* C 2D vector functions */
+static inline vec2_t v2_cons(scalar_t x, scalar_t y)
+{
+	vec2_t v;
+	v.x = x;
+	v.y = y;
+	return v;
+}
+
+static inline void v2_print(FILE *fp, vec2_t v)
+{
+	fprintf(fp, "[ %.4f %.4f ]", v.x, v.y);
+}
+
+static inline vec2_t v2_add(vec2_t v1, vec2_t v2)
+{
+	vec2_t res;
+	res.x = v1.x + v2.x;
+	res.y = v1.y + v2.y;
+	return res;
+}
+
+static inline vec2_t v2_sub(vec2_t v1, vec2_t v2)
+{
+	vec2_t res;
+	res.x = v1.x - v2.x;
+	res.y = v1.y - v2.y;
+	return res;
+}
+
+static inline vec2_t v2_scale(vec2_t v, scalar_t s)
+{
+	vec2_t res;
+	res.x = v.x * s;
+	res.y = v.y * s;
+	return res;
+}
+
+static inline scalar_t v2_dot(vec2_t v1, vec2_t v2)
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+static inline scalar_t v2_length(vec2_t v)
+{
+	return sqrt(v.x * v.x + v.y * v.y);
+}
+
+static inline scalar_t v2_length_sq(vec2_t v)
+{
+	return v.x * v.x + v.y * v.y;
+}
+
+static inline vec2_t v2_normalize(vec2_t v)
+{
+	scalar_t len = (scalar_t)sqrt(v.x * v.x + v.y * v.y);
+	v.x /= len;
+	v.y /= len;
+	return v;
+}
+
+static inline vec2_t v2_lerp(vec2_t v1, vec2_t v2, scalar_t t)
+{
+	vec2_t res;
+	res.x = v1.x + (v2.x - v1.x) * t;
+	res.y = v1.y + (v2.y - v1.y) * t;
+	return res;
+}
+
+
+/* C 3D vector functions */
+static inline vec3_t v3_cons(scalar_t x, scalar_t y, scalar_t z)
+{
+	vec3_t v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	return v;
+}
+
+static inline void v3_print(FILE *fp, vec3_t v)
+{
+	fprintf(fp, "[ %.4f %.4f %.4f ]", v.x, v.y, v.z);
+}
+
+static inline vec3_t v3_add(vec3_t v1, vec3_t v2)
+{
+	v1.x += v2.x;
+	v1.y += v2.y;
+	v1.z += v2.z;
+	return v1;
+}
+
+static inline vec3_t v3_sub(vec3_t v1, vec3_t v2)
+{
+	v1.x -= v2.x;
+	v1.y -= v2.y;
+	v1.z -= v2.z;
+	return v1;
+}
+
+static inline vec3_t v3_neg(vec3_t v)
+{
+	v.x = -v.x;
+	v.y = -v.y;
+	v.z = -v.z;
+	return v;
+}
+
+static inline vec3_t v3_mul(vec3_t v1, vec3_t v2)
+{
+	v1.x *= v2.x;
+	v1.y *= v2.y;
+	v1.z *= v2.z;
+	return v1;
+}
+
+static inline vec3_t v3_scale(vec3_t v1, scalar_t s)
+{
+	v1.x *= s;
+	v1.y *= s;
+	v1.z *= s;
+	return v1;
+}
+
+static inline scalar_t v3_dot(vec3_t v1, vec3_t v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+static inline vec3_t v3_cross(vec3_t v1, vec3_t v2)
+{
+	vec3_t v;
+	v.x = v1.y * v2.z - v1.z * v2.y;
+	v.y = v1.z * v2.x - v1.x * v2.z;
+	v.z = v1.x * v2.y - v1.y * v2.x;
+	return v;
+}
+
+static inline scalar_t v3_length(vec3_t v)
+{
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+static inline scalar_t v3_length_sq(vec3_t v)
+{
+	return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+static inline vec3_t v3_normalize(vec3_t v)
+{
+	scalar_t len = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	v.x /= len;
+	v.y /= len;
+	v.z /= len;
+	return v;
+}
+
+static inline vec3_t v3_transform(vec3_t v, mat4_t m)
+{
+	vec3_t res;
+	res.x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3];
+	res.y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3];
+	res.z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3];
+	return res;
+}
+
+static inline vec3_t v3_rotate(vec3_t v, scalar_t x, scalar_t y, scalar_t z)
+{
+	void m4_rotate(mat4_t, scalar_t, scalar_t, scalar_t);
+
+	mat4_t m = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+	m4_rotate(m, x, y, z);
+	return v3_transform(v, m);
+}
+
+static inline vec3_t v3_rotate_axis(vec3_t v, scalar_t angle, scalar_t x, scalar_t y, scalar_t z)
+{
+	void m4_rotate_axis(mat4_t, scalar_t, scalar_t, scalar_t, scalar_t);
+
+	mat4_t m = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+	m4_rotate_axis(m, angle, x, y, z);
+	return v3_transform(v, m);
+}
+
+static inline vec3_t v3_rotate_quat(vec3_t v, quat_t q)
+{
+	quat_t quat_rotate_quat(quat_t, quat_t);
+
+	quat_t vq = v4_cons(v.x, v.y, v.z, 0.0);
+	quat_t res = quat_rotate_quat(vq, q);
+	return v3_cons(res.x, res.y, res.z);
+}
+
+static inline vec3_t v3_reflect(vec3_t v, vec3_t n)
+{
+	scalar_t dot = v3_dot(v, n);
+	return v3_sub(v3_scale(n, dot * 2.0), v);
+}
+
+static inline vec3_t v3_lerp(vec3_t v1, vec3_t v2, scalar_t t)
+{
+	v1.x += (v2.x - v1.x) * t;
+	v1.y += (v2.y - v1.y) * t;
+	v1.z += (v2.z - v1.z) * t;
+	return v1;
+}
+
+/* C 4D vector functions */
+static inline vec4_t v4_cons(scalar_t x, scalar_t y, scalar_t z, scalar_t w)
+{
+	vec4_t v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	v.w = w;
+	return v;
+}
+
+static inline void v4_print(FILE *fp, vec4_t v)
+{
+	fprintf(fp, "[ %.4f %.4f %.4f %.4f ]", v.x, v.y, v.z, v.w);
+}
+
+static inline vec4_t v4_add(vec4_t v1, vec4_t v2)
+{
+	v1.x += v2.x;
+	v1.y += v2.y;
+	v1.z += v2.z;
+	v1.w += v2.w;
+	return v1;
+}
+
+static inline vec4_t v4_sub(vec4_t v1, vec4_t v2)
+{
+	v1.x -= v2.x;
+	v1.y -= v2.y;
+	v1.z -= v2.z;
+	v1.w -= v2.w;
+	return v1;
+}
+
+static inline vec4_t v4_neg(vec4_t v)
+{
+	v.x = -v.x;
+	v.y = -v.y;
+	v.z = -v.z;
+	v.w = -v.w;
+	return v;
+}
+
+static inline vec4_t v4_mul(vec4_t v1, vec4_t v2)
+{
+	v1.x *= v2.x;
+	v1.y *= v2.y;
+	v1.z *= v2.z;
+	v1.w *= v2.w;
+	return v1;
+}
+
+static inline vec4_t v4_scale(vec4_t v, scalar_t s)
+{
+	v.x *= s;
+	v.y *= s;
+	v.z *= s;
+	v.w *= s;
+	return v;
+}
+
+static inline scalar_t v4_dot(vec4_t v1, vec4_t v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+}
+
+static inline scalar_t v4_length(vec4_t v)
+{
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+}
+
+static inline scalar_t v4_length_sq(vec4_t v)
+{
+	return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+
+static inline vec4_t v4_normalize(vec4_t v)
+{
+	scalar_t len = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+	v.x /= len;
+	v.y /= len;
+	v.z /= len;
+	v.w /= len;
+	return v;
+}
+
+static inline vec4_t v4_transform(vec4_t v, mat4_t m)
+{
+	vec4_t res;
+	res.x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * v.w;
+	res.y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * v.w;
+	res.z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w;
+	res.w = m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] * v.w;
+	return res;
+}
+
+#ifdef __cplusplus
+}	/* extern "C" */
+
+
+/* --------------- C++ part -------------- */
 
 inline scalar_t &Vector2::operator [](int elem) {
 	return elem ? y : x;
@@ -444,3 +757,5 @@ inline Vector4 catmull_rom_spline(const Vector4 &v0, const Vector4 &v1,
 	scalar_t w = spline(v0.w, v1.w, v2.w, v3.w, t);
 	return Vector4(x, y, z, w);
 }
+
+#endif	/* __cplusplus */

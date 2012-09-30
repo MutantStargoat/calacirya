@@ -1,26 +1,5 @@
-/*
-Calacirya is a photorealistic 3D renderer.
-Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
-               and Nikos Papadopoulos <nikpapas@gmail.com>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include "vector.h"
-#include "matrix.h"
-#include "quat.h"
-
-#define SQ(x)	((x) * (x))
+#include "vmath.h"
 
 // ---------- Vector2 -----------
 
@@ -28,6 +7,12 @@ Vector2::Vector2(scalar_t x, scalar_t y)
 {
 	this->x = x;
 	this->y = y;
+}
+
+Vector2::Vector2(const vec2_t &vec)
+{
+	x = vec.x;
+	y = vec.y;
 }
 
 Vector2::Vector2(const Vector3 &vec)
@@ -109,6 +94,13 @@ Vector3::Vector3(scalar_t x, scalar_t y, scalar_t z)
 	this->z = z;
 }
 
+Vector3::Vector3(const vec3_t &vec)
+{
+	x = vec.x;
+	y = vec.y;
+	z = vec.z;
+}
+
 Vector3::Vector3(const Vector2 &vec)
 {
 	x = vec.x;
@@ -121,6 +113,19 @@ Vector3::Vector3(const Vector4 &vec)
 	x = vec.x;
 	y = vec.y;
 	z = vec.z;
+}
+
+Vector3::Vector3(const SphVector &sph)
+{
+	*this = sph;
+}
+
+Vector3 &Vector3::operator =(const SphVector &sph)
+{
+	x = sph.r * cos(sph.theta) * sin(sph.phi);
+	z = sph.r * sin(sph.theta) * sin(sph.phi);
+	y = sph.r * cos(sph.phi);
+	return *this;
 }
 
 void Vector3::normalize()
@@ -240,6 +245,14 @@ Vector4::Vector4(scalar_t x, scalar_t y, scalar_t z, scalar_t w)
 	this->y = y;
 	this->z = z;
 	this->w = w;
+}
+
+Vector4::Vector4(const vec4_t &vec)
+{
+	x = vec.x;
+	y = vec.y;
+	z = vec.z;
+	w = vec.w;
 }
 
 Vector4::Vector4(const Vector2 &vec)
