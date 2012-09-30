@@ -1,5 +1,11 @@
-ccsrc = $(wildcard src/*.cc src/math/*.cc)
-obj = $(ccsrc:.cc=.o)
+csrc = $(wildcard src/*.c) \
+	   $(wildcard libs/vmath/*.c) \
+	   $(wildcard libs/anim/*.c)
+
+ccsrc = $(wildcard src/*.cc) \
+		$(wildcard libs/vmath/*.cc)
+
+obj = $(csrc:.c=.o) $(ccsrc:.cc=.o)
 dep = $(obj:.o=.d)
 
 name = calacirya
@@ -28,9 +34,8 @@ else
 endif
 
 warn = -Wall
-inc = -Isrc/math
 
-CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc)
+CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc) $(pic)
 CXXFLAGS = $(cxxflags11) $(CFLAGS)
 LDFLAGS = $(ldflags11)
 

@@ -45,7 +45,7 @@ private:
 public:
 	/* enviornmental index of refraction, normally 1.0 */
 	static scalar_t env_ior;
-	
+
 	Vector3 origin, dir;
 	scalar_t energy;
 	int iter;
