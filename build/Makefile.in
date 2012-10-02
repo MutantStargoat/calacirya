@@ -34,6 +34,7 @@ else
 endif
 
 warn = -Wall
+inc = -Ilibs
 
 CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc) $(pic)
 CXXFLAGS = $(cxxflags11) $(CFLAGS)
