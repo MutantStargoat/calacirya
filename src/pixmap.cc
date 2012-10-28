@@ -16,33 +16,44 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_MATERIAL_H_
-#define CALA_MATERIAL_H_
+#include "pixmap.h"
+#include "imago/imago2.h"
 
-#include <string>
-#include "vmath/vector.h"
-#include "xform_node.h"
-#include "texture.h"
+Pixmap::Pixmap()
+{
+	width = height = 0;
+	pixels = 0;
+}
 
-class MatAttrib {
-private:
-	std::string name;
-	Track3 value;
-	const Texture *map;
+Pixmap::~Pixmap()
+{
+	if(pixels) {
+		img_free_pixels(pixels);
+	}
+}
 
-public:
-	inline MatAttrib();
+bool Pixmap::load(const char *fname)
+{
+	int xsz, ysz;
+	float *pix = (float*)img_load_pixels(fname, &xsz, &ysz, IMG_FMT_RGBAF);
+	if(!pix) {
+		return false;
+	}
 
-	inline void set_value(float val, long tmsec = 0);
-	inline void set_color(const Vector3 &col, long tmsec = 0);
-	inline void set_texture(const Texture *tex);
+	if(pixels) {
+		img_free_pixels(pixels);
+	}
 
-	inline Vector3 operator ()(const Vector2 &tc = Vector2(0.0, 0.0)) const;
-	inline Vector3 operator ()(const Vector3 &tc = Vector3(0.0, 0.0, 0.0)) const;
-};
+	pixels = pix;
+	width = xsz;
+	height = ysz;
+	return true;
+}
 
-class Material {
-public:
-};
-
-#endif	// CALA_MATERIAL_H_
+bool Pixmap::save(const char *fname) const
+{
+	if(!pixels) {
+		return false;
+	}
+	return img_save_pixels(fname, pixels, width, height, IMG_FMT_RGBAF) == 0;
+}

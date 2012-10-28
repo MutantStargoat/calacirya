@@ -4,6 +4,7 @@ ccsrc = $(wildcard src/*.cc)
 
 # libraries source files
 libs_csrc = $(wildcard libs/vmath/*.c) \
+			$(wildcard libs/imago/*.c) \
 			$(wildcard libs/anim/*.c)
 libs_ccsrc = $(wildcard libs/vmath/*.cc)
 

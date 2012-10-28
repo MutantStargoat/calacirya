@@ -16,33 +16,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_MATERIAL_H_
-#define CALA_MATERIAL_H_
+#ifndef CALA_PIXMAP_H_
+#define CALA_PIXMAP_H_
 
-#include <string>
-#include "vmath/vector.h"
-#include "xform_node.h"
-#include "texture.h"
-
-class MatAttrib {
-private:
-	std::string name;
-	Track3 value;
-	const Texture *map;
-
+class Pixmap {
 public:
-	inline MatAttrib();
+	int width, height;
+	float *pixels;
 
-	inline void set_value(float val, long tmsec = 0);
-	inline void set_color(const Vector3 &col, long tmsec = 0);
-	inline void set_texture(const Texture *tex);
+	Pixmap();
+	~Pixmap();
 
-	inline Vector3 operator ()(const Vector2 &tc = Vector2(0.0, 0.0)) const;
-	inline Vector3 operator ()(const Vector3 &tc = Vector3(0.0, 0.0, 0.0)) const;
+	bool load(const char *fname);
+	bool save(const char *fname) const;
 };
 
-class Material {
-public:
-};
-
-#endif	// CALA_MATERIAL_H_
+#endif	// CALA_PIXMAP_H_

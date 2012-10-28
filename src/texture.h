@@ -16,33 +16,31 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_MATERIAL_H_
-#define CALA_MATERIAL_H_
+#ifndef CALA_TEXTURE_H_
+#define CALA_TEXTURE_H_
 
-#include <string>
-#include "vmath/vector.h"
-#include "xform_node.h"
-#include "texture.h"
-
-class MatAttrib {
-private:
-	std::string name;
-	Track3 value;
-	const Texture *map;
-
+class Texture {
 public:
-	inline MatAttrib();
+	virtual ~Texture();
 
-	inline void set_value(float val, long tmsec = 0);
-	inline void set_color(const Vector3 &col, long tmsec = 0);
-	inline void set_texture(const Texture *tex);
-
-	inline Vector3 operator ()(const Vector2 &tc = Vector2(0.0, 0.0)) const;
-	inline Vector3 operator ()(const Vector3 &tc = Vector3(0.0, 0.0, 0.0)) const;
+	// TODO add some way to determine texel scale for filtering
+	virtual Vector3 lookup(const Vector2 &texcoord) const;
+	virtual Vector3 lookup(const Vector3 &texcoord) const = 0;
 };
 
-class Material {
+class Texture2D {
 public:
+	virtual Vector3 lookup(const Vector3 &texcoord) const;
 };
 
-#endif	// CALA_MATERIAL_H_
+class Texture3D {
+public:
+	virtual Vector3 lookup(const Vector3 &texcoord) const;
+};
+
+class TextureCube {
+public:
+	virtual Vector3 lookup(const Vector3 &texcoord) const;
+};
+
+#endif	// CALA_TEXTURE_H_
