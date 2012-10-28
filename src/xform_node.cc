@@ -1,8 +1,11 @@
+#include <assert.h>
 #include <algorithm>
 #include "xform_node.h"
 #include "anim/anim.h"
 #include "anim/track.h"
 
+static inline anm_interpolator track_interpolator(Interp in);
+static inline anm_extrapolator track_extrapolator(Extrap ex);
 
 XFormNode::XFormNode()
 {
@@ -28,22 +31,7 @@ const char *XFormNode::get_name() const
 
 void XFormNode::set_interpolator(Interp in)
 {
-	anm_interpolator ain;
-
-	switch(in) {
-	case Interp::step:
-		ain = ANM_INTERP_STEP;
-		break;
-
-	case Interp::linear:
-		ain = ANM_INTERP_LINEAR;
-		break;
-
-	case Interp::cubic:
-		ain = ANM_INTERP_CUBIC;
-		break;
-	}
-	anm_set_interpolator(anm, ain);
+	anm_set_interpolator(anm, track_interpolator(in));
 	interp = in;
 }
 
@@ -54,22 +42,7 @@ Interp XFormNode::get_interpolator() const
 
 void XFormNode::set_extrapolator(Extrap ex)
 {
-	anm_extrapolator aex;
-
-	switch(ex) {
-	case Extrap::extend:
-		aex = ANM_EXTRAP_EXTEND;
-		break;
-
-	case Extrap::clamp:
-		aex = ANM_EXTRAP_CLAMP;
-		break;
-
-	case Extrap::repeat:
-		aex = ANM_EXTRAP_REPEAT;
-		break;
-	}
-	anm_set_extrapolator(anm, aex);
+	anm_set_extrapolator(anm, track_extrapolator(ex));
 	extrap = ex;
 }
 
@@ -165,3 +138,140 @@ void XFormNode::get_xform(long tmsec, Matrix4x4 *mat, Matrix4x4 *inv_mat) const
 		anm_get_inv_matrix(anm, (scalar_t(*)[4])inv_mat, ANM_MSEC2TM(tmsec));
 	}
 }
+
+
+// ---- Track ----
+
+Track::Track()
+{
+	trk = new anm_track;
+	anm_init_track(trk);
+}
+
+Track::~Track()
+{
+	anm_destroy_track(trk);
+	delete trk;
+}
+
+
+void Track::set_interpolator(Interp in)
+{
+	anm_set_track_interpolator(trk, track_interpolator(in));
+	interp = in;
+}
+
+Interp Track::get_interpolator() const
+{
+	return interp;
+}
+
+void Track::set_extrapolator(Extrap ex)
+{
+	anm_set_track_extrapolator(trk, track_extrapolator(ex));
+	extrap = ex;
+}
+
+Extrap Track::get_extrapolator() const
+{
+	return extrap;
+}
+
+void Track::set_default(double def)
+{
+	anm_set_track_default(trk, def);
+}
+
+void Track::set_value(float val, long tmsec)
+{
+	anm_set_value(trk, ANM_MSEC2TM(tmsec), val);
+}
+
+float Track::get_value(long tmsec) const
+{
+	return anm_get_value(trk, ANM_MSEC2TM(tmsec));
+}
+
+float Track::operator ()(long tmsec) const
+{
+	return anm_get_value(trk, ANM_MSEC2TM(tmsec));
+}
+
+
+// ---- Track3 ----
+
+void Track3::set_interpolator(Interp in)
+{
+	for(auto trk : track) {
+		trk.set_interpolator(in);
+	}
+}
+
+Interp Track3::get_interpolator() const
+{
+	return track[0].get_interpolator();
+}
+
+void Track3::set_extrapolator(Extrap ex)
+{
+	for(auto trk : track) {
+		trk.set_extrapolator(ex);
+	}
+}
+
+Extrap Track3::get_extrapolator() const
+{
+	return track[0].get_extrapolator();
+}
+
+void Track3::set_default(const Vector3 &def)
+{
+	for(int i=0; i<3; i++) {
+		track[i].set_default(def[i]);
+	}
+}
+
+void Track3::set_value(const Vector3 &val, long tmsec)
+{
+	for(int i=0; i<3; i++) {
+		track[i].set_value(val[i], tmsec);
+	}
+}
+
+Vector3 Track3::get_value(long tmsec) const
+{
+	return Vector3(track[0](tmsec), track[1](tmsec), track[2](tmsec));
+}
+
+
+
+static inline anm_interpolator track_interpolator(Interp in)
+{
+	switch(in) {
+	case Interp::step:
+		return ANM_INTERP_STEP;
+	case Interp::linear:
+		return ANM_INTERP_LINEAR;
+	case Interp::cubic:
+		return ANM_INTERP_CUBIC;
+	}
+
+	assert(0);
+	return ANM_INTERP_STEP;
+}
+
+static inline anm_extrapolator track_extrapolator(Extrap ex)
+{
+	switch(ex) {
+	case Extrap::extend:
+		return ANM_EXTRAP_EXTEND;
+	case Extrap::clamp:
+		return ANM_EXTRAP_CLAMP;
+	case Extrap::repeat:
+		return ANM_EXTRAP_REPEAT;
+	}
+
+	assert(0);
+	return ANM_EXTRAP_EXTEND;
+}
+

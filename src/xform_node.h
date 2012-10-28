@@ -10,6 +10,7 @@ enum class Interp { step, linear, cubic };
 enum class Extrap { extend, clamp, repeat };
 
 struct anm_node;
+struct anm_track;
 
 // XXX all time arguments are milliseconds
 
@@ -36,19 +37,19 @@ public:
 	void add_child(XFormNode *child);
 	void remove_child(XFormNode *child);
 
-	void set_position(const Vector3 &pos, long tmsec);
-	Vector3 get_node_position(long tmsec) const;
+	void set_position(const Vector3 &pos, long tmsec = 0);
+	Vector3 get_node_position(long tmsec = 0) const;
 
-	void set_rotation(const Quaternion &quat, long tmsec);
-	Quaternion get_node_rotation(long tmsec) const;
+	void set_rotation(const Quaternion &quat, long tmsec = 0);
+	Quaternion get_node_rotation(long tmsec = 0) const;
 
-	void set_scaling(const Vector3 &pos, long tmsec);
-	Vector3 get_node_scaling(long tmsec) const;
+	void set_scaling(const Vector3 &pos, long tmsec = 0);
+	Vector3 get_node_scaling(long tmsec = 0) const;
 
 	// these take hierarchy into account
-	Vector3 get_position(long tmsec) const;
-	Quaternion get_rotation(long tmsec) const;
-	Vector3 get_scaling(long tmsec) const;
+	Vector3 get_position(long tmsec = 0) const;
+	Quaternion get_rotation(long tmsec = 0) const;
+	Vector3 get_scaling(long tmsec = 0) const;
 
 	void set_pivot(const Vector3 &pivot);
 	Vector3 get_pivot() const;
@@ -57,5 +58,43 @@ public:
 };
 
 
+class Track {
+private:
+	struct anm_track *trk;
+	Interp interp;
+	Extrap extrap;
+
+public:
+	Track();
+	~Track();
+
+	void set_interpolator(Interp in);
+	Interp get_interpolator() const;
+	void set_extrapolator(Extrap ex);
+	Extrap get_extrapolator() const;
+
+	void set_default(double def);
+
+	void set_value(float val, long tmsec = 0);
+	float get_value(long tmsec = 0) const;
+
+	float operator ()(long tmsec = 0) const;
+};
+
+class Track3 {
+private:
+	Track track[3];
+
+public:
+	void set_interpolator(Interp in);
+	Interp get_interpolator() const;
+	void set_extrapolator(Extrap ex);
+	Extrap get_extrapolator() const;
+
+	void set_default(const Vector3 &def);
+
+	void set_value(const Vector3 &val, long tmsec = 0);
+	Vector3 get_value(long tmsec = 0) const;
+};
 
 #endif	// XFORM_NODE_H_
