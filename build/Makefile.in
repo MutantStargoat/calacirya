@@ -1,11 +1,15 @@
-csrc = $(wildcard src/*.c) \
-	   $(wildcard libs/vmath/*.c) \
-	   $(wildcard libs/anim/*.c)
+# core calacyria source files
+csrc = $(wildcard src/*.c)
+ccsrc = $(wildcard src/*.cc)
 
-ccsrc = $(wildcard src/*.cc) \
-		$(wildcard libs/vmath/*.cc)
+# libraries source files
+libs_csrc = $(wildcard libs/vmath/*.c) \
+			$(wildcard libs/anim/*.c)
+libs_ccsrc = $(wildcard libs/vmath/*.cc)
 
-obj = $(csrc:.c=.o) $(ccsrc:.cc=.o)
+core_obj = $(csrc:.c=.o) $(ccsrc:.cc=.o)
+libs_obj = $(libs_csrc:.c=.o) $(libs_ccsrc:.cc=.o)
+obj = $(libs_obj) $(core_obj)
 dep = $(obj:.o=.d)
 
 name = calacirya
@@ -51,6 +55,18 @@ $(lib_so): $(obj)
 .PHONY: clean
 clean:
 	rm -f $(obj) $(lib_so) $(dep)
+
+.PHONY: cleandep
+cleandep:
+	rm -f $(dep)
+
+.PHONY: cleancore
+cleancore:
+	rm -f $(core_obj)
+
+.PHONY: cleanlibs
+cleanlibs:
+	rm -f $(libs_obj)
 
 .PHONY: install
 install: $(lib_so)
