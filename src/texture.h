@@ -19,6 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CALA_TEXTURE_H_
 #define CALA_TEXTURE_H_
 
+#include <vector>
+#include "vmath/vector.h"
+#include "pixmap.h"
+
+// TODO add a plugin-based procedural texture subclass
+
 class Texture {
 public:
 	virtual ~Texture();
@@ -29,17 +35,30 @@ public:
 };
 
 class Texture2D {
+private:
+	const Pixmap *img;
+
 public:
+	Texture2D();
+
 	virtual Vector3 lookup(const Vector3 &texcoord) const;
 };
 
 class Texture3D {
+private:
+	std::vector<const Pixmap*> slices;
+
 public:
 	virtual Vector3 lookup(const Vector3 &texcoord) const;
 };
 
 class TextureCube {
+private:
+	const Pixmap *sides[6];
+
 public:
+	TextureCube();
+
 	virtual Vector3 lookup(const Vector3 &texcoord) const;
 };
 
