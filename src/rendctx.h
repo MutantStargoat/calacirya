@@ -20,11 +20,13 @@ struct RenderOptions {
 
 
 class Scene;
+class Pixmap;
 
 class RenderContext {
 public:
 	RenderOptions opt;
 	Scene *scn;
+	Pixmap *framebuf;
 
 	RenderContext();
 	~RenderContext();

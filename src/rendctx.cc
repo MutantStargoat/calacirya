@@ -12,6 +12,7 @@ RenderOptions::RenderOptions()
 RenderContext::RenderContext()
 {
 	scn = 0;
+	framebuf = 0;
 }
 
 bool load_config(const char *fname)
