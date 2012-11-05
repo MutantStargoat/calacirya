@@ -45,7 +45,9 @@ public:
 	void add_camera(const Camera *cam);
 
 	const Camera *find_camera(const char *name) const;
+
 	void set_active_camera(const Camera *cam);
+	const Camera *get_active_camera() const;
 
 	Vector3 trace_ray(const Ray &ray) const;
 	Vector3 shade(const Ray &ray, const SurfPoint &pt) const;

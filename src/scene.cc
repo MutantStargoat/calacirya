@@ -66,6 +66,11 @@ void Scene::set_active_camera(const Camera *cam)
 	active_cam = cam;
 }
 
+const Camera *Scene::get_active_camera() const
+{
+	return active_cam;
+}
+
 Vector3 Scene::trace_ray(const Ray &ray) const
 {
 	SurfPoint pt;
