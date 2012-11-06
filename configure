@@ -40,7 +40,7 @@ if $opt; then
 	echo 'opt = -O3 -ffast-math' >>Makefile
 fi
 if $debug; then
-	echo 'debug = -g' >>Makefile
+	echo 'dbg = -g' >>Makefile
 fi
 
 if ! cat build/Makefile.in >>Makefile; then
