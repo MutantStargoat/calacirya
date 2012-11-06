@@ -49,6 +49,9 @@ void Scene::add_surface(const Surface *surf)
 void Scene::add_camera(const Camera *cam)
 {
 	cameras.push_back(cam);
+	if(!active_cam) {
+		set_active_camera(cam);
+	}
 }
 
 const Camera *Scene::find_camera(const char *name) const
