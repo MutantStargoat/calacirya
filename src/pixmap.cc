@@ -27,9 +27,17 @@ Pixmap::Pixmap()
 
 Pixmap::~Pixmap()
 {
+	release();
+}
+
+void Pixmap::release()
+{
 	if(pixels) {
 		img_free_pixels(pixels);
 	}
+
+	width = height = 0;
+	pixels = 0;
 }
 
 bool Pixmap::load(const char *fname)
@@ -40,9 +48,7 @@ bool Pixmap::load(const char *fname)
 		return false;
 	}
 
-	if(pixels) {
-		img_free_pixels(pixels);
-	}
+	release();
 
 	pixels = pix;
 	width = xsz;
@@ -55,5 +61,6 @@ bool Pixmap::save(const char *fname) const
 	if(!pixels) {
 		return false;
 	}
+
 	return img_save_pixels(fname, pixels, width, height, IMG_FMT_RGBAF) == 0;
 }

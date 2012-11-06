@@ -26,7 +26,8 @@ public:
 
 	Pixmap();
 	~Pixmap();
-
+	
+	void release();
 	bool load(const char *fname);
 	bool save(const char *fname) const;
 };
