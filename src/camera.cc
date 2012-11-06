@@ -44,12 +44,10 @@ Vector2 Camera::calc_sample_pos(int x, int y, int xsz, int ysz, int sample) cons
 
 Ray Camera::get_primary_ray(int x, int y, int xsz, int ysz, int sample, long tmsec) const
 {
-	Vector2 vpos = get_position(tmsec);
-
 	Vector2 ppos = calc_sample_pos(x, y, xsz, ysz, sample);
 	float z = 1.0 / tan(fov * 0.5);
 
-	Ray ray(vpos, Vector3(ppos.x, ppos.y, z));
+	Ray ray(Vector3(0, 0, 0), Vector3(ppos.x, ppos.y, z));
 	ray.time = tmsec;
 
 	Matrix4x4 xform;

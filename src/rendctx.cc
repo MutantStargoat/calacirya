@@ -1,4 +1,6 @@
 #include "rendctx.h"
+#include "scene.h"
+#include "pixmap.h"
 
 // defaults
 RenderOptions::RenderOptions()
@@ -13,6 +15,12 @@ RenderContext::RenderContext()
 {
 	scn = 0;
 	framebuf = 0;
+}
+
+RenderContext::~RenderContext()
+{
+	delete scn;
+	delete framebuf;
 }
 
 bool load_config(const char *fname)
