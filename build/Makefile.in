@@ -3,10 +3,11 @@ csrc = $(wildcard src/*.c)
 ccsrc = $(wildcard src/*.cc)
 
 # libraries source files
-libs_csrc = $(wildcard libs/vmath/*.c) \
-			$(wildcard libs/imago/*.c) \
-			$(wildcard libs/anim/*.c)
-libs_ccsrc = $(wildcard libs/vmath/*.cc)
+libs_csrc =  $(wildcard libs/vmath/*.c) \
+			 $(wildcard libs/imago/*.c) \
+			 $(wildcard libs/anim/*.c)
+libs_ccsrc = $(wildcard libs/vmath/*.cc) \
+			 $(wildcard libs/ncf/*.cc)
 
 core_obj = $(csrc:.c=.o) $(ccsrc:.cc=.o)
 libs_obj = $(libs_csrc:.c=.o) $(libs_ccsrc:.cc=.o)
