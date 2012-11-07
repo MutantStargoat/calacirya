@@ -23,26 +23,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void render_frame(const RenderContext *ctx, long tmsec)
 {
+
+	// XXX: this is just a test version, later on it will break the
+	// frame rendering into tasks and queue them to the worker pool
+	for(int i=0; i<ctx->opt.height; i++) {
+		render_scanline(ctx, i, tmsec);
+	}
+}
+
+void render_scanline(const RenderContext *ctx, int scanline, long tmsec)
+{
 	const Scene *scn = ctx->scn;
 	const Camera *cam = scn->get_active_camera();
-
-	float *fbptr = ctx->framebuf->pixels;
 
 	int xsz = ctx->opt.width;
 	int ysz = ctx->opt.height;
 
-	// XXX: this is just a test version, later on it will break the
-	// frame rendering into tasks and queue them to the worker pool
-	for(int i=0; i<ysz; i++) {
-		for(int j=0; j<xsz; j++) {
-			for(int k=0; k<ctx->opt.samples; k++) {
-				Ray ray = cam->get_primary_ray(j, i, xsz, ysz, k, tmsec);
-				Vector3 color = scn->trace_ray(ray);
+	float *fbptr = ctx->framebuf->pixels + scanline * xsz * 3;
 
-				*fbptr++ = color.x;
-				*fbptr++ = color.y;
-				*fbptr++ = color.z;
-			}
+	for(int i=0; i<xsz; i++) {
+		Vector3 color;
+
+		for(int j=0; j<ctx->opt.samples; j++) {
+			Ray ray = cam->get_primary_ray(i, scanline, xsz, ysz, j, tmsec);
+			color += scn->trace_ray(ray);
 		}
+
+		*fbptr++ = color.x;
+		*fbptr++ = color.y;
+		*fbptr++ = color.z;
 	}
 }

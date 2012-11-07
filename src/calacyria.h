@@ -16,12 +16,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_REND_H_
-#define CALA_REND_H_
+#ifndef CALACYRIA_H_
+#define CALACYRIA_H_
 
+// This is a convenience header file which includes all "public" headers
+#include "rend.h"
 #include "rendctx.h"
+#include "scene.h"
+#include "material.h"
 
-void render_frame(const RenderContext *ctx, long tmsec = 0);
-void render_scanline(const RenderContext *ctx, int scanline, long tmsec = 0);
+#include "surface.h"
+#include "sphere.h"
 
-#endif	// CALA_REND_H_
+#include "pixmap.h"
+
+#endif	// CALACYRIA_H_
