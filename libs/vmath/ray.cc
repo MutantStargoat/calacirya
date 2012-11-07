@@ -20,16 +20,12 @@ Ray::Ray(const Vector3 &origin, const Vector3 &dir) {
 }
 
 void Ray::transform(const Matrix4x4 &xform) {
-	Matrix4x4 upper;
-	Vector3 dir;
-
-	upper = xform;
+	Matrix4x4 upper = xform;
 	upper[0][3] = upper[1][3] = upper[2][3] = upper[3][0] = upper[3][1] = upper[3][2] = 0.0;
 	upper[3][3] = 1.0;
 
-	dir = (this->dir - origin).transformed(upper);
+	dir.transform(upper);
 	origin.transform(xform);
-	this->dir = dir + origin;
 }
 
 Ray Ray::transformed(const Matrix4x4 &xform) const {
