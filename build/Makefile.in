@@ -1,6 +1,7 @@
 # core calacyria source files
 csrc = $(wildcard src/*.c)
 ccsrc = $(wildcard src/*.cc)
+headers = $(wildcard src/*.h)
 
 # libraries source files
 libs_csrc =  $(wildcard libs/vmath/*.c) \
