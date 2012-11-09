@@ -34,18 +34,31 @@ echo "install prefix: $prefix"
 $opt &&   echo ' optimizations: enabled' || echo ' optimizations: disabled'
 $debug && echo '     debugging: enabled' || echo '     debugging: disabled'
 
-echo '# generated makefile, do not edit' >Makefile
-echo "PREFIX = $prefix" >>Makefile
-if $opt; then
-	echo 'opt = -O3 -ffast-math' >>Makefile
-fi
-if $debug; then
-	echo 'dbg = -g' >>Makefile
-fi
+mkopts()
+{
+	echo '# generated makefile, do not edit'
+	echo "PREFIX = $prefix"
+	if $opt; then
+		echo 'opt = -O3 -ffast-math'
+	fi
+	if $debug; then
+		echo 'dbg = -g'
+	fi
+}
 
+# create the Makefile
+mkopts >Makefile
 if ! cat build/Makefile.in >>Makefile; then
 	echo "can't find build/Makefile.in, make sure you run configure from the project root directory" >&2
 	rm -f Makefile
+	exit 1
+fi
+
+# also create the build/plugin.mk makefile part
+mkopts >build/plugin.mk
+if ! cat build/plugin.mk.in >>build/plugin.mk; then
+	echo "can't find build/plugin.mk.in, make sure you run configure form the project root directory" >&2
+	rm -f build/plugin.mk
 	exit 1
 fi
 

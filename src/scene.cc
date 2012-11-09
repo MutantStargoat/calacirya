@@ -78,12 +78,12 @@ Vector3 Scene::trace_ray(const Ray &ray) const
 {
 	SurfPoint pt;
 	if(find_hit(ray, &pt)) {
-		return shade(ray, pt);
+		return shade(pt);
 	}
 	return bgcolor;
 }
 
-Vector3 Scene::shade(const Ray &ray, const SurfPoint &pt) const
+Vector3 Scene::shade(const SurfPoint &pt) const
 {
 	return Vector3(1.0, 0.0, 0.0);	// TODO
 }
@@ -107,6 +107,7 @@ bool Scene::find_hit(const Ray &ray, SurfPoint *pt) const
 
 	if(pt) {
 		*pt = nearest;
+		pt->incray = &ray;
 	}
 	return nearest.surf != 0;
 }

@@ -50,7 +50,7 @@ public:
 	const Camera *get_active_camera() const;
 
 	Vector3 trace_ray(const Ray &ray) const;
-	Vector3 shade(const Ray &ray, const SurfPoint &pt) const;
+	Vector3 shade(const SurfPoint &pt) const;
 
 	/* finds the first hit of a ray with our geometry
 	 * hit point details are reutrned by pointer hit

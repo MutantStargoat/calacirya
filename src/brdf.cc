@@ -16,38 +16,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALA_SURFACE_H_
-#define CALA_SURFACE_H_
+#include "brdf.h"
 
-#include "xform_node.h"
-#include "material.h"
-#include "vmath/vector.h"
-#include "vmath/ray.h"
+ReflectanceFunc::~ReflectanceFunc()
+{
+}
 
-class Surface;
-
-struct SurfPoint {
-	double t;
-	Vector3 pos, normal, tangent;
-	Vector2 tex;
-
-	const Surface *surf;
-	const Ray *incray;
-};
-
-class Surface : public XFormNode {
-protected:
-	const Material *material;
-
-public:
-	Surface();
-	virtual ~Surface();
-
-	void set_material(const Material *mat);
-	const Material *get_material() const;
-
-	virtual bool intersect(const Ray &ray, SurfPoint *sp) const = 0;
-};
-
-
-#endif	// CALA_SURFACE_H_
+double ReflectanceFunc::eval_energy(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const
+{
+	Vector3 color = eval(pt, outdir, indir);
+	return (color.x + color.y + color.z) / 3.0;
+}

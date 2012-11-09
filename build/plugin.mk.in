@@ -1,0 +1,49 @@
+src = $(wildcard *.cc)
+obj = $(src:.cc=.o)
+dep = $(obj:.o=.d)
+plugin = lib$(name).so
+
+ifeq ($(shell uname -s), Darwin)
+	shared = -bundle
+
+	# on macosx we need to use clang++ for C++11 support
+	# and libc++ instead of libstdc++
+	CXX = clang++
+	cxxflags11 = -std=c++11 -stdlib=libc++
+	ldflags11 = -stdlib=libc++
+else
+	shared = -shared
+	pic = -fPIC
+
+	cxxflags11 = -std=c++11
+endif
+
+incpath = -I$(rootdir)/src -I$(rootdir)/libs -I$(PREFIX)/include/calacirya
+
+CFLAGS = -pedantic -Wall -g $(pic) $(incpath)
+CXXFLAGS = $(cxxflags11) $(CFLAGS)
+
+$(plugin): $(obj)
+	$(CXX) -o $@ $(shared) $(obj) $(LDFLAGS)
+
+-include $(dep)
+
+%.d: %.cc
+	@$(CPP) $(CXXFLAGS) $< -MM -MT $(@:.d=.o) >$@
+
+.PHONY: clean
+clean:
+	rm -f $(obj) $(plugin) $(dep)
+
+.PHONY: cleandep
+cleandep:
+	rm -f $(dep)
+
+.PHONY: install
+install: $(plugin)
+	mkdir -p $(DESTDIR)$(PREFIX)/lib/calacirya/plugins/brdf
+	cp $(plugin) $(DESTDIR)$(PREFIX)/lib/calacirya/plugins/brdf/$(plugin)
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/lib/calacirya/plugins/brdf/$(plugin)
