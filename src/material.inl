@@ -18,18 +18,20 @@ void MatAttrib::set_texture(const Texture *tex)
 	map = tex;
 }
 
-Vector3 MatAttrib::operator ()(const Vector2 &tc) const
+Vector3 MatAttrib::operator ()() const
 {
-	if(tex) {
-		return value * (Vector3)map->lookup(tc);
-	}
-	return value;
+	return (*this)(0, Vector3(0, 0, 0));
 }
 
-Vector3 MatAttrib::operator ()(const Vector3 &tc) const
+Vector3 MatAttrib::operator ()(const SurfPoint &pt) const
 {
-	if(tex) {
-		return value * (Vector3)map->lookup(tc);
+	return (*this)(pt.incray->time, pt.tex);
+}
+
+Vector3 MatAttrib::operator ()(long tm, const Vector3 &tc) const
+{
+	if(map) {
+		return value(tm) * (Vector3)map->lookup(tc);
 	}
-	return value;
+	return value(tm);
 }

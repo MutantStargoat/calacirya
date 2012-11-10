@@ -20,13 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CALA_MATERIAL_H_
 
 #include <string>
+#include <map>
 #include "vmath/vector.h"
 #include "xform_node.h"
 #include "texture.h"
+#include "surface.h"
 
 class MatAttrib {
 private:
-	std::string name;
 	Track3 value;
 	const Texture *map;
 
@@ -37,12 +38,24 @@ public:
 	inline void set_color(const Vector3 &col, long tmsec = 0);
 	inline void set_texture(const Texture *tex);
 
-	inline Vector3 operator ()(const Vector2 &tc = Vector2(0.0, 0.0)) const;
-	inline Vector3 operator ()(const Vector3 &tc = Vector3(0.0, 0.0, 0.0)) const;
+	inline Vector3 operator ()() const;
+	inline Vector3 operator ()(const SurfPoint &pt) const;
+	inline Vector3 operator ()(long tm, const Vector3 &tc = Vector3(0, 0, 0)) const;
 };
 
 class Material {
+private:
+	std::string name;
+	std::map<std::string, MatAttrib> attribs;
+
 public:
+	void set_name(const char *name);
+	const char *get_name() const;
+
+	MatAttrib &operator [](const char *attrname);
+	const MatAttrib &operator [](const char *attrname) const;
 };
+
+#include "material.inl"
 
 #endif	// CALA_MATERIAL_H_
