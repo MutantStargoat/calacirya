@@ -52,6 +52,9 @@ public:
 	void set_name(const char *name);
 	const char *get_name() const;
 
+	void set_attrib(const char *name, const MatAttrib &mattr);
+	const MatAttrib &get_attrib(const char *name) const;
+
 	MatAttrib &operator [](const char *attrname);
 	const MatAttrib &operator [](const char *attrname) const;
 };
