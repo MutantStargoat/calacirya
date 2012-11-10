@@ -78,6 +78,7 @@ public:
 	void set_value(float val, long tmsec = 0);
 	float get_value(long tmsec = 0) const;
 
+	// the same as get_value
 	float operator ()(long tmsec = 0) const;
 };
 
@@ -95,6 +96,9 @@ public:
 
 	void set_value(const Vector3 &val, long tmsec = 0);
 	Vector3 get_value(long tmsec = 0) const;
+
+	// the same as get_value
+	Vector3 operator ()(long tmsec = 0) const;
 };
 
 #endif	// XFORM_NODE_H_

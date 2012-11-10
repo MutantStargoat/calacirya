@@ -243,6 +243,10 @@ Vector3 Track3::get_value(long tmsec) const
 	return Vector3(track[0](tmsec), track[1](tmsec), track[2](tmsec));
 }
 
+Vector3 Track3::operator ()(long tmsec) const
+{
+	return Vector3(track[0](tmsec), track[1](tmsec), track[2](tmsec));
+}
 
 
 static inline anm_interpolator track_interpolator(Interp in)
