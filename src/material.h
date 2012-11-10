@@ -19,12 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CALA_MATERIAL_H_
 #define CALA_MATERIAL_H_
 
+#include <vector>
 #include <string>
 #include <map>
 #include "vmath/vector.h"
 #include "xform_node.h"
 #include "texture.h"
 #include "surface.h"
+#include "brdf.h"
 
 class MatAttrib {
 private:
@@ -48,9 +50,15 @@ private:
 	std::string name;
 	std::map<std::string, MatAttrib> attribs;
 
+	std::vector<const ReflectanceFunc*> reflist;
+
 public:
 	void set_name(const char *name);
 	const char *get_name() const;
+
+	void add_brdf(const ReflectanceFunc *brdf);
+	const ReflectanceFunc *get_brdf(int idx = 0) const;
+	int get_brdf_count() const;
 
 	void set_attrib(const char *name, const MatAttrib &mattr);
 	const MatAttrib &get_attrib(const char *name) const;
