@@ -21,7 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "surface.h"
 #include "vmath/vector.h"
-#include "vmath/ray.h"
+
+enum class ReflectanceType : unsigned int {
+	diffuse = 1,
+	specular = 2
+};
 
 /* ReflectanceFunc is the abstract base class representing a BRDF
  * (Bidirectional Reflectance Distribution Function).
@@ -30,6 +34,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class ReflectanceFunc {
 public:
 	virtual ~ReflectanceFunc();
+
+	virtual const char *get_name() const = 0;
+	virtual ReflectanceType get_type() const = 0;
 
 	/* evaluate the radiant exitance along "outdir", of light coming from "indir"
 	 * returns the intensity for each color channel
@@ -42,8 +49,8 @@ public:
 	 */
 	virtual double eval_energy(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const;
 
-	// generate a random BRDF sampling ray
-	virtual Ray sample_ray(const SurfPoint &pt, const Vector3 &outdir) const = 0;
+	// generate a random BRDF sampling direction
+	virtual Vector3 sample_dir(const SurfPoint &pt, const Vector3 &outdir) const = 0;
 };
 
 #endif	// CALA_BRDF_H_

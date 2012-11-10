@@ -1,5 +1,5 @@
 /*
-Phong BRDF plugin for calacirya
+Lambert BRDF plugin for calacirya
 Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
                and Nikos Papadopoulos <nikpapas@gmail.com>
 
@@ -17,8 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "brdf.h"
+#include "material.h"
+#include "vmath/vmath.h"
 
-class PhongReflectanceFunc : public ReflectanceFunc {
+class LambertReflectanceFunc : public ReflectanceFunc {
 public:
 	virtual const char *get_name() const;
 	virtual ReflectanceType get_type() const;
@@ -29,7 +31,7 @@ public:
 // this function is called by the BRDF plugin manager to create the BRDF
 extern "C" ReflectanceFunc *create_brdf()
 {
-	return new PhongReflectanceFunc;
+	return new LambertReflectanceFunc;
 }
 
 /* this function is called by the BRDF plugin manager when it no longer needs
@@ -40,24 +42,36 @@ extern "C" void destroy_brdf(ReflectanceFunc *brdf)
 	delete brdf;
 }
 
-const char *PhongReflectanceFunc::get_name() const
+const char *LambertReflectanceFunc::get_name() const
 {
-	return "phong";
+	return "lambert";
 }
 
-ReflectanceType PhongReflectanceFunc::get_type() const
+ReflectanceType LambertReflectanceFunc::get_type() const
 {
-	return ReflectanceType::specular;
+	return ReflectanceType::diffuse;
 }
 
-Vector3 PhongReflectanceFunc::eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const
+Vector3 LambertReflectanceFunc::eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const
 {
-	// TODO get material attributes from pt.surf->get_material() and evaluate
-	return Vector3(0, 0, 0);
+	// get the material of the surface
+	const Material *mat = pt.surf->get_material();
+
+	// evaluate the "diffuse" attribute
+	Vector3 kd = mat->get_attrib("diffuse")(pt);
+
+	// calculate lambert's cosine law and multiply by the diffuse color
+	return kd * fabs(dot_product(pt.normal, indir));
 }
 
-Vector3 PhongReflectanceFunc::sample_dir(const SurfPoint &pt, const Vector3 &outdir) const
+Vector3 LambertReflectanceFunc::sample_dir(const SurfPoint &pt, const Vector3 &outdir) const
 {
-	// TODO randomly generate a sample ray direction
-	return Vector3(0, 1, 0);
+	// generate a random direction
+	Vector3 dir = sphrand(1.0);
+
+	// if it points the wrong way, flip it...
+	if(dot_product(dir, pt.normal) < 0.0) {
+		dir = -dir;
+	}
+	return dir;
 }

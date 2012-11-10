@@ -18,3 +18,4 @@
 *.swp
 # generated makefile
 Makefile
+build/plugin.mk

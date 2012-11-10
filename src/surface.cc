@@ -1,4 +1,5 @@
 #include "surface.h"
+#include "material.h"
 
 Surface::Surface()
 {

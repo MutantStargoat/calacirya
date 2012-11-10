@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CALA_SURFACE_H_
 
 #include "xform_node.h"
-#include "material.h"
 #include "vmath/vector.h"
 #include "vmath/ray.h"
 
 class Surface;
+class Material;
 
 struct SurfPoint {
 	double t;
