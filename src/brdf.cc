@@ -25,5 +25,7 @@ ReflectanceFunc::~ReflectanceFunc()
 double ReflectanceFunc::eval_energy(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const
 {
 	Vector3 color = eval(pt, outdir, indir);
-	return (color.x + color.y + color.z) / 3.0;
+
+	// Using relative luminance.
+	return 0.2126 * color.x + 0.7152 * color.y + 0.0722 * color.z;
 }
