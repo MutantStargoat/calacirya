@@ -1,0 +1,207 @@
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <typeinfo>
+
+#if defined(WIN32) || defined(__WIN32__)
+#include "dlfcn_w32.h"
+#include "dirent_w32.h"
+#else
+#include <dlfcn.h>
+#include <dirent.h>
+#endif
+
+#ifdef __GNUC__
+#define __func__	__PRETTY_FUNCTION__
+#endif
+#ifdef _MSC_VER
+#define __func__	__FUNCTION__
+#endif
+
+template <typename T>
+Plugin<T>::Plugin()
+{
+	so = 0;
+	object = 0;
+}
+
+template <typename T>
+Plugin<T>::~Plugin()
+{
+	if(so) {
+		if(object) {
+			void (*destroy)(T*) = dlsym(so, "destroy_plugin");
+			destroy(object);
+		}
+		dlclose(so);
+	}
+}
+
+template <typename T>
+Plugin<T>::Plugin(const Plugin<T> &&p)
+{
+	name = std::move(p.name);
+	so = p.so;
+	p.so = 0;
+	object = p.object;
+	p.object = 0;
+}
+
+template <typename T>
+Plugin<T> &Plugin<T>::operator =(const Plugin<T> &&p)
+{
+	if(&p != this) {
+		name = std::move(p.name);
+		so = p.so;
+		p.so = 0;
+		object = p.object;
+		p.object = 0;
+	}
+	return *this;
+}
+
+template <typename T>
+bool Plugin<T>::load(const char *fname)
+{
+	if(so) {
+		fprintf(stderr, "%s: error loading %s, plugin already loaded and initialized\n",
+				__func__, fname);
+		return false;
+	}
+
+	if(!(so = dlopen(fname, RTLD_LAZY))) {
+		fprintf(stderr, "%s: failed to load plugin: %s\n", __func__, fname);
+		return false;
+	}
+
+	T *(*create)() = dlsym(so, "create_plugin");
+	if(!create) {
+		fprintf(stderr, "%s: shared lib %s does not contain a `create_plugin' function\n",
+				__func__, fname);
+		goto err;
+	}
+
+	if(!(object = create())) {
+		fprintf(stderr, "%s: failed to initialize plugin: %s\n", __func__, fname);
+		goto err;
+	}
+
+	if(!dynamic_cast<T*>(object)) {
+		fprintf(stderr, "%s: tried to load incorrect plugin %s of type %s, expected: %s\n",
+				__func__, fname, typeid(object).name(), typeid(*this).name());
+		goto err;
+	}
+
+	name = object->get_name();
+	return true;
+
+err:
+	dlclose(so);
+	so = 0;
+	return false;
+}
+
+template <typename T>
+const char *Plugin<T>::get_name() const
+{
+	return name.c_str();
+}
+
+template <typename T>
+T *Plugin<T>::get_object()
+{
+	return object;
+}
+
+template <typename T>
+const T *Plugin<T>::get_object() const
+{
+	return object;
+}
+
+// ---- PluginSet implementation ----
+template <typename T>
+bool PluginSet<T>::load_plugins_from(const char *path)
+{
+	printf("loading plugins from %s: ", path);
+	fflush(stdout);
+
+	DIR *dir = opendir(path);
+	if(!dir) {
+		printf("%s\n", strerror(errno));
+		return false;
+	}
+
+	int num_loaded = 0;
+	struct dirent *dent;
+
+	while((dent = readdir(dir))) {
+		// construct the complete pathname
+		std::string fname = std::string(path) + "/" + std::string(dent->d_name);
+
+		struct stat st;
+		if(stat(fname.c_str(), &st) || !S_ISREG(st.st_mode)) {
+			// does not exist (?) or is not a regular file
+			continue;
+		}
+
+		Plugin<T> plugin;
+		if(!plugin.load(fname.c_str())) {
+			continue;
+		}
+
+		std::string name = plugin.get_name();
+		printf("%s ", name.c_str());
+		num_loaded++;
+
+		plugins[name] = std::move(plugin);
+	}
+
+	printf("(%d loaded)\n", num_loaded);
+	closedir(dir);
+	return true;
+}
+
+template <typename T>
+void PluginSet<T>::add_search_path(const char *path)
+{
+	paths.push_back(path);
+}
+
+template <typename T>
+void PluginSet<T>::load_plugins()
+{
+	for(auto path : paths) {
+		load_plugins_from(path);
+	}
+}
+
+template <typename T>
+void PluginSet<T>::unload_plugins()
+{
+	plugins.clear();
+}
+
+template <typename T>
+T *PluginSet<T>::operator [](const char *name)
+{
+	auto it = plugins.find(std::string(name));
+	if(it == plugins.end()) {
+		return 0;
+	}
+	return it->get_object();
+}
+
+template <typename T>
+const T *PluginSet<T>::operator [](const char *name) const
+{
+	auto it = plugins.find(std::string(name));
+	if(it == plugins.end()) {
+		return 0;
+	}
+	return it->get_object();
+}
+
+#if defined(__GNUC__) || defined(_MSC_VER)
+#undef __func__
+#endif
