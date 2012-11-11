@@ -53,4 +53,8 @@ public:
 	virtual Vector3 sample_dir(const SurfPoint &pt, const Vector3 &outdir) const = 0;
 };
 
+void load_brdf_plugins();
+void unload_brdf_plugins();
+ReflectanceFunc *get_brdf(const char *name);
+
 #endif	// CALA_BRDF_H_

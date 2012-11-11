@@ -9,6 +9,7 @@
 #else
 #include <dlfcn.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #endif
 
 #ifdef __GNUC__
@@ -30,7 +31,7 @@ Plugin<T>::~Plugin()
 {
 	if(so) {
 		if(object) {
-			void (*destroy)(T*) = dlsym(so, "destroy_plugin");
+			void (*destroy)(T*) = (void (*)(T*))dlsym(so, "destroy_plugin");
 			destroy(object);
 		}
 		dlclose(so);
@@ -38,7 +39,7 @@ Plugin<T>::~Plugin()
 }
 
 template <typename T>
-Plugin<T>::Plugin(const Plugin<T> &&p)
+Plugin<T>::Plugin(Plugin<T> &&p)
 {
 	name = std::move(p.name);
 	so = p.so;
@@ -48,7 +49,7 @@ Plugin<T>::Plugin(const Plugin<T> &&p)
 }
 
 template <typename T>
-Plugin<T> &Plugin<T>::operator =(const Plugin<T> &&p)
+Plugin<T> &Plugin<T>::operator =(Plugin<T> &&p)
 {
 	if(&p != this) {
 		name = std::move(p.name);
@@ -74,7 +75,7 @@ bool Plugin<T>::load(const char *fname)
 		return false;
 	}
 
-	T *(*create)() = dlsym(so, "create_plugin");
+	T *(*create)() = (T *(*)())dlsym(so, "create_plugin");
 	if(!create) {
 		fprintf(stderr, "%s: shared lib %s does not contain a `create_plugin' function\n",
 				__func__, fname);
@@ -172,7 +173,7 @@ template <typename T>
 void PluginSet<T>::load_plugins()
 {
 	for(auto path : paths) {
-		load_plugins_from(path);
+		load_plugins_from(path.c_str());
 	}
 }
 
@@ -189,7 +190,7 @@ T *PluginSet<T>::operator [](const char *name)
 	if(it == plugins.end()) {
 		return 0;
 	}
-	return it->get_object();
+	return it->second.get_object();
 }
 
 template <typename T>
@@ -199,7 +200,13 @@ const T *PluginSet<T>::operator [](const char *name) const
 	if(it == plugins.end()) {
 		return 0;
 	}
-	return it->get_object();
+	return it->second.get_object();
+}
+
+template <typename T>
+bool PluginSet<T>::empty() const
+{
+	return plugins.empty();
 }
 
 #if defined(__GNUC__) || defined(_MSC_VER)

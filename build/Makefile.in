@@ -43,7 +43,7 @@ endif
 warn = -Wall
 inc = -Ilibs
 
-CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc) $(pic) -DPREFIX="$(PREFIX)"
+CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc) $(pic) -DPREFIX=\"$(PREFIX)\"
 CXXFLAGS = $(cxxflags11) $(CFLAGS)
 LDFLAGS = $(ldflags11) -lpng -lz -ljpeg -lpthread
 

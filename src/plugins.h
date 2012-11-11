@@ -37,8 +37,8 @@ public:
 	Plugin(const Plugin &p) = delete;
 	Plugin &operator =(const Plugin &p) = delete;
 
-	Plugin(const Plugin &&p);
-	Plugin &operator =(const Plugin &&p);
+	Plugin(Plugin &&p);
+	Plugin &operator =(Plugin &&p);
 
 	bool load(const char *fname);
 
@@ -64,6 +64,8 @@ public:
 
 	T *operator [](const char *name);
 	const T *operator [](const char *name) const;
+
+	bool empty() const;
 };
 
 
