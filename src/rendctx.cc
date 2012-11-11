@@ -11,6 +11,21 @@ RenderOptions::RenderOptions()
 	flags = ROPT_DEFAULT;
 }
 
+void RenderOptions::enable(unsigned int bit)
+{
+	flags |= bit;
+}
+
+void RenderOptions::disable(unsigned int bit)
+{
+	flags &= ~bit;
+}
+
+bool RenderOptions::is_enabled(unsigned int bit)
+{
+	return (flags & bit) != 0;
+}
+
 RenderContext::RenderContext()
 {
 	scn = 0;

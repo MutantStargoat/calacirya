@@ -16,6 +16,10 @@ struct RenderOptions {
 	unsigned int flags;	// bitmask, see above...
 
 	RenderOptions();	// initialize defaults
+
+	void enable(unsigned int bit);
+	void disable(unsigned int bit);
+	bool is_enabled(unsigned int bit);
 };
 
 
@@ -33,8 +37,6 @@ public:
 
 	bool load_config(const char *fname);
 	bool parse_args(int argc, char **argv);
-
-
 };
 
 #endif	// CALA_RENDCTX_H_
