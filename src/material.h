@@ -35,6 +35,8 @@ private:
 
 public:
 	inline MatAttrib();
+	inline MatAttrib(float val, long tmsec = 0);
+	inline MatAttrib(const Vector3 &col, long tmsec = 0);
 
 	inline void set_value(float val, long tmsec = 0);
 	inline void set_color(const Vector3 &col, long tmsec = 0);
@@ -69,4 +71,4 @@ public:
 
 #include "material.inl"
 
-#endif	// CALA_MATERIAL_H_
+#endif	/* CALA_MATERIAL_H_ */

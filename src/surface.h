@@ -50,4 +50,4 @@ public:
 };
 
 
-#endif	// CALA_SURFACE_H_
+#endif	/* CALA_SURFACE_H_ */

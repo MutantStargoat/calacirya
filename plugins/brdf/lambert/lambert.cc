@@ -29,7 +29,7 @@ public:
 };
 
 // this function is called by the BRDF plugin manager to create the BRDF
-extern "C" ReflectanceFunc *create_brdf()
+extern "C" ReflectanceFunc *create_plugin()
 {
 	return new LambertReflectanceFunc;
 }
@@ -37,7 +37,7 @@ extern "C" ReflectanceFunc *create_brdf()
 /* this function is called by the BRDF plugin manager when it no longer needs
  * this BRDF
  */
-extern "C" void destroy_brdf(ReflectanceFunc *brdf)
+extern "C" void destroy_plugin(ReflectanceFunc *brdf)
 {
 	delete brdf;
 }

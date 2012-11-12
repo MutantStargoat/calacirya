@@ -124,12 +124,11 @@ const T *Plugin<T>::get_object() const
 template <typename T>
 bool PluginSet<T>::load_plugins_from(const char *path)
 {
-	printf("loading plugins from %s: ", path);
-	fflush(stdout);
+	printf("loading plugins from %s ...\n", path);
 
 	DIR *dir = opendir(path);
 	if(!dir) {
-		printf("%s\n", strerror(errno));
+		printf("  %s\n", strerror(errno));
 		return false;
 	}
 
@@ -152,13 +151,13 @@ bool PluginSet<T>::load_plugins_from(const char *path)
 		}
 
 		std::string name = plugin.get_name();
-		printf("%s ", name.c_str());
+		printf("  -> %s\n", name.c_str());
 		num_loaded++;
 
 		plugins[name] = std::move(plugin);
 	}
 
-	printf("(%d loaded)\n", num_loaded);
+	printf("  (%d loaded)\n", num_loaded);
 	closedir(dir);
 	return true;
 }

@@ -154,6 +154,27 @@ Track::~Track()
 	delete trk;
 }
 
+Track::Track(const Track &rhs)
+{
+	trk = new anm_track;
+	anm_init_track(trk);
+	anm_copy_track(trk, rhs.trk);
+	interp = rhs.interp;
+	extrap = rhs.extrap;
+}
+
+Track &Track::operator =(const Track &rhs)
+{
+	if(&rhs == this) {
+		return *this;
+	}
+
+	anm_copy_track(trk, rhs.trk);
+	interp = rhs.interp;
+	extrap = rhs.extrap;
+	return *this;
+}
+
 
 void Track::set_interpolator(Interp in)
 {

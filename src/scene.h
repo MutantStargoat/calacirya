@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "surface.h"
 #include "camera.h"
+#include "light.h"
 #include "rayaccel.h"
 
 // XXX the scene owns all objects
@@ -32,6 +33,7 @@ private:
 
 	std::vector<const Surface*> surfaces;
 	std::vector<const Camera*> cameras;
+	std::vector<const Light*> lights;
 	const Camera *active_cam;
 
 	RayAccel *accel;
@@ -43,6 +45,7 @@ public:
 	void set_background(const Vector3 &col);
 
 	void add_surface(const Surface *surf);
+	void add_light(const Light *lt);
 	void add_camera(const Camera *cam);
 
 	const Camera *find_camera(const char *name) const;
@@ -59,4 +62,4 @@ public:
 	bool find_hit(const Ray &ray, SurfPoint *pt) const;
 };
 
-#endif	// CALA_SCENE_H_
+#endif	/* CALA_SCENE_H_ */

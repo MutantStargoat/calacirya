@@ -26,6 +26,9 @@ public:
 	XFormNode();
 	virtual ~XFormNode();
 
+	XFormNode(const XFormNode &node) = delete;
+	XFormNode &operator =(const XFormNode &node) = delete;
+
 	void set_name(const char *name);
 	const char *get_name() const;
 
@@ -68,6 +71,9 @@ public:
 	Track();
 	~Track();
 
+	Track(const Track &trk);
+	Track &operator =(const Track &trk);
+
 	void set_interpolator(Interp in);
 	Interp get_interpolator() const;
 	void set_extrapolator(Extrap ex);
@@ -101,4 +107,4 @@ public:
 	Vector3 operator ()(long tmsec = 0) const;
 };
 
-#endif	// XFORM_NODE_H_
+#endif	/* XFORM_NODE_H_ */

@@ -7,7 +7,7 @@
 #include <GLUT/glut.h>
 #endif
 
-#include "calacyria.h"
+#include "calacirya.h"
 
 static bool init();
 static void cleanup();
@@ -38,6 +38,8 @@ int main(int argc, char **argv)
 
 static bool init()
 {
+	calacirya_init();
+
 	ctx.scn = new Scene;
 	ctx.scn->set_background(Vector3(0.2, 0.3, 0.4));
 
@@ -50,14 +52,23 @@ static bool init()
 	ctx.framebuf->pixels = new float[ctx.framebuf->width * ctx.framebuf->height * 3];
 	memset(ctx.framebuf->pixels, 0, ctx.framebuf->width * ctx.framebuf->height * 3 * sizeof *ctx.framebuf->pixels);
 
+	Material *mtl = new Material;
+	mtl->add_brdf(get_brdf("lambert"));
+	mtl->set_attrib("diffuse", Vector3(0.3, 0.4, 0.9));
+
 	Sphere *sph = new Sphere;
 	sph->set_radius(1.0);
 	sph->set_position(Vector3(0, 0, 0));
+	sph->set_material(mtl);
 	ctx.scn->add_surface(sph);
 
 	Camera *cam = new Camera;
 	cam->set_position(Vector3(0, 0, -6));
 	ctx.scn->add_camera(cam);
+
+	Light *lt = new Light;
+	lt->set_position(Vector3(-5, 5, -5));
+	ctx.scn->add_light(lt);
 
 	glutReshapeWindow(ctx.opt.width, ctx.opt.height);
 
@@ -74,6 +85,7 @@ static bool init()
 
 static void cleanup()
 {
+	calacirya_destroy();
 }
 
 static void disp()

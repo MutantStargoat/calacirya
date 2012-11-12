@@ -16,8 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "scene.h"
 #include <float.h>
+#include "scene.h"
+#include "brdf.h"
+#include "material.h"
 
 Scene::Scene()
 {
@@ -33,6 +35,9 @@ Scene::~Scene()
 	for(auto c : cameras) {
 		delete c;
 	}
+	for(auto lt : lights) {
+		delete lt;
+	}
 	delete accel;
 }
 
@@ -43,11 +48,23 @@ void Scene::set_background(const Vector3 &col)
 
 void Scene::add_surface(const Surface *surf)
 {
-	surfaces.push_back(surf);
+	if(surf) {
+		surfaces.push_back(surf);
+	}
+}
+
+void Scene::add_light(const Light *lt)
+{
+	if(lt) {
+		lights.push_back(lt);
+	}
 }
 
 void Scene::add_camera(const Camera *cam)
 {
+	if(!cam) {
+		return;
+	}
 	cameras.push_back(cam);
 	if(!active_cam) {
 		set_active_camera(cam);
@@ -85,7 +102,23 @@ Vector3 Scene::trace_ray(const Ray &ray) const
 
 Vector3 Scene::shade(const SurfPoint &pt) const
 {
-	return Vector3(1.0, 0.0, 0.0);	// TODO
+	long tm = pt.incray->time;
+	Vector3 vdir = -pt.incray->dir.normalized();
+
+	const Material *mtl = pt.surf->get_material();
+	const ReflectanceFunc *brdf = mtl->get_brdf();
+	if(!brdf) {
+		return Vector3(1.0, 0.0, 0.0);
+	}
+
+	Vector3 color;
+	for(auto lt : lights) {
+		Vector3 ldir = (lt->get_position(tm) - pt.pos).normalized();
+
+		color += brdf->eval(pt, vdir, ldir) * lt->get_color(tm);
+	}
+
+	return color;
 }
 
 bool Scene::find_hit(const Ray &ray, SurfPoint *pt) const

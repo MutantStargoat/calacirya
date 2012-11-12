@@ -16,20 +16,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALACIRYA_H_
-#define CALACIRYA_H_
+#ifndef CALA_LIGHT_H_
+#define CALA_LIGHT_H_
 
-#include "rend.h"
-#include "rendctx.h"
-#include "scene.h"
-#include "material.h"
+#include "xform_node.h"
 
-#include "surface.h"
-#include "sphere.h"
+class Light : public XFormNode {
+private:
+	Track intensity;
+	Track3 color;
 
-#include "pixmap.h"
+public:
+	Light();
+	virtual ~Light();
 
-bool calacirya_init();
-void calacirya_destroy();
+	virtual Vector3 get_color(long tmsec = 0) const;
+};
 
-#endif	// CALACIRYA_H_
+#endif	/* CALA_LIGHT_H_ */

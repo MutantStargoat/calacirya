@@ -3,6 +3,18 @@ MatAttrib::MatAttrib()
 	map = 0;
 }
 
+MatAttrib::MatAttrib(float val, long tmsec)
+{
+	map = 0;
+	value.set_value(val, tmsec);
+}
+
+MatAttrib::MatAttrib(const Vector3 &col, long tmsec)
+{
+	map = 0;
+	value.set_value(col, tmsec);
+}
+
 void MatAttrib::set_value(float val, long tmsec)
 {
 	value.set_value(Vector3(val, val, val), tmsec);

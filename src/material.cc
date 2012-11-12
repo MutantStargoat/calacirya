@@ -14,7 +14,9 @@ const char *Material::get_name() const
 
 void Material::add_brdf(const ReflectanceFunc *brdf)
 {
-	reflist.push_back(brdf);
+	if(brdf) {
+		reflist.push_back(brdf);
+	}
 }
 
 const ReflectanceFunc *Material::get_brdf(int idx) const

@@ -16,20 +16,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CALACIRYA_H_
-#define CALACIRYA_H_
+#include "light.h"
 
-#include "rend.h"
-#include "rendctx.h"
-#include "scene.h"
-#include "material.h"
+Light::Light()
+{
+	intensity.set_default(1.0);
+	color.set_default(Vector3(1.0, 1.0, 1.0));
+}
 
-#include "surface.h"
-#include "sphere.h"
+Light::~Light() {}
 
-#include "pixmap.h"
-
-bool calacirya_init();
-void calacirya_destroy();
-
-#endif	// CALACIRYA_H_
+Vector3 Light::get_color(long tmsec) const
+{
+	return color(tmsec) * intensity(tmsec);
+}
