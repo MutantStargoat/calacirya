@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class PhongReflectanceFunc : public ReflectanceFunc {
 public:
 	virtual const char *get_name() const;
-	virtual ReflectanceType get_type() const;
+	virtual unsigned int get_type() const;
 	virtual Vector3 eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const;
 	virtual Vector3 sample_dir(const SurfPoint &pt, const Vector3 &outdir) const;
 };
@@ -47,7 +47,7 @@ const char *PhongReflectanceFunc::get_name() const
 
 ReflectanceType PhongReflectanceFunc::get_type() const
 {
-	return ReflectanceType::specular;
+	return BRDF_SPECULAR;
 }
 
 Vector3 PhongReflectanceFunc::eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const

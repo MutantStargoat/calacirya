@@ -22,9 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "surface.h"
 #include "vmath/vector.h"
 
-enum class ReflectanceType : unsigned int {
-	diffuse = 1,
-	specular = 2
+// BRDF type bitmask, returned by ReflectanceFunc::get_type()
+enum {
+	BRDF_DIFFUSE = 1,
+	BRDF_SPECULAR = 2
 };
 
 /* ReflectanceFunc is the abstract base class representing a BRDF
@@ -36,7 +37,7 @@ public:
 	virtual ~ReflectanceFunc();
 
 	virtual const char *get_name() const = 0;
-	virtual ReflectanceType get_type() const = 0;
+	virtual unsigned int get_type() const = 0;
 
 	/* evaluate the radiant exitance along "outdir", of light coming from "indir"
 	 * returns the intensity for each color channel

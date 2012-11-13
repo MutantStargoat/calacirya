@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class LambertReflectanceFunc : public ReflectanceFunc {
 public:
 	virtual const char *get_name() const;
-	virtual ReflectanceType get_type() const;
+	virtual unsigned int get_type() const;
 	virtual Vector3 eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const;
 	virtual Vector3 sample_dir(const SurfPoint &pt, const Vector3 &outdir) const;
 };
@@ -49,7 +49,7 @@ const char *LambertReflectanceFunc::get_name() const
 
 ReflectanceType LambertReflectanceFunc::get_type() const
 {
-	return ReflectanceType::diffuse;
+	return BRDF_DIFFUSE;
 }
 
 Vector3 LambertReflectanceFunc::eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const
