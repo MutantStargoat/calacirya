@@ -4,7 +4,7 @@ dep = $(obj:.o=.d)
 plugin = lib$(name).so
 
 ifeq ($(shell uname -s), Darwin)
-	shared = -bundle
+	shared = -bundle -bundle_loader $(rootdir)/libcalacirya.dylib
 
 	# on macosx we need to use clang++ for C++11 support
 	# and libc++ instead of libstdc++

@@ -29,6 +29,9 @@ ifeq ($(shell uname -s), Darwin)
 	CXX = clang++
 	cxxflags11 = -std=c++11 -stdlib=libc++
 	ldflags11 = -stdlib=libc++
+
+	add_inc = -I/usr/X11R6/include -I/opt/local/include
+	add_lib = -L/usr/X11R6/lib -L/opt/local/lib
 else
 	# other UNIX systems (ELF DSOs)
 	devlink = lib$(name).so
@@ -41,11 +44,12 @@ else
 endif
 
 warn = -Wall
-inc = -Ilibs
+inc = -Ilibs -I/usr/local/include
+lib = -L/usr/local/lib
 
-CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc) $(pic) -DPREFIX=\"$(PREFIX)\"
+CFLAGS = -pedantic $(warn) $(opt) $(dbg) $(inc) $(add_inc) $(pic) -DPREFIX=\"$(PREFIX)\"
 CXXFLAGS = $(cxxflags11) $(CFLAGS)
-LDFLAGS = $(ldflags11) -lpng -lz -ljpeg -lpthread
+LDFLAGS = $(ldflags11) $(lib) $(add_lib) -lpng -lz -ljpeg -lpthread
 
 $(lib_so): $(obj)
 	$(CXX) -o $@ $(shared) $(obj) $(LDFLAGS)
