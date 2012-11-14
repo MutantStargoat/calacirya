@@ -45,7 +45,7 @@ const char *PhongReflectanceFunc::get_name() const
 	return "phong";
 }
 
-ReflectanceType PhongReflectanceFunc::get_type() const
+unsigned int PhongReflectanceFunc::get_type() const
 {
 	return BRDF_SPECULAR;
 }

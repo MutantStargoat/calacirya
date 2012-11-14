@@ -47,7 +47,7 @@ const char *LambertReflectanceFunc::get_name() const
 	return "lambert";
 }
 
-ReflectanceType LambertReflectanceFunc::get_type() const
+unsigned int LambertReflectanceFunc::get_type() const
 {
 	return BRDF_DIFFUSE;
 }
