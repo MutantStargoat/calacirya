@@ -54,7 +54,10 @@ static bool init()
 
 	Material *mtl = new Material;
 	mtl->add_brdf(get_brdf("lambert"));
+	mtl->add_brdf(get_brdf("phong"));
 	mtl->set_attrib("diffuse", Vector3(0.3, 0.4, 0.9));
+	mtl->set_attrib("specular", Vector3(0.8, 0.8, 0.8));
+	mtl->set_attrib("shininess", 80.0);
 
 	Sphere *sph = new Sphere;
 	sph->set_radius(1.0);

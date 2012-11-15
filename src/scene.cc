@@ -106,16 +106,16 @@ Vector3 Scene::shade(const SurfPoint &pt) const
 	Vector3 vdir = -pt.incray->dir.normalized();
 
 	const Material *mtl = pt.surf->get_material();
-	const ReflectanceFunc *brdf = mtl->get_brdf();
-	if(!brdf) {
-		return Vector3(1.0, 0.0, 0.0);
-	}
-
 	Vector3 color;
-	for(auto lt : lights) {
-		Vector3 ldir = (lt->get_position(tm) - pt.pos).normalized();
 
-		color += brdf->eval(pt, vdir, ldir) * lt->get_color(tm);
+	for(int i=0; i<mtl->get_brdf_count(); i++) {
+		const ReflectanceFunc *brdf = mtl->get_brdf(i);
+
+		for(auto lt : lights) {
+			Vector3 ldir = (lt->get_position(tm) - pt.pos).normalized();
+
+			color += brdf->eval(pt, vdir, ldir) * lt->get_color(tm);
+		}
 	}
 
 	return color;
