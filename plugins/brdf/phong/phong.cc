@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "brdf.h"
+#include "material.h"
+#include "vmath/vmath.h"
 
 class PhongReflectanceFunc : public ReflectanceFunc {
 public:
@@ -52,12 +54,60 @@ unsigned int PhongReflectanceFunc::get_type() const
 
 Vector3 PhongReflectanceFunc::eval(const SurfPoint &pt, const Vector3 &outdir, const Vector3 &indir) const
 {
-	// TODO get material attributes from pt.surf->get_material() and evaluate
-	return Vector3(0, 0, 0);
+	const Material *mat = pt.surf->get_material();
+
+	Vector3 ks = mat->get_attrib("specular")(pt);
+	double shin = mat->get_attrib("shininess")(pt).x;
+
+	// light reflection vector
+	Vector3 lref = indir.reflection(pt.normal);
+
+	double dot = dot_product(lref, outdir);
+	if(dot < 0.0) {
+		return Vector3(0, 0, 0);
+	}
+	return ks * pow(dot, shin);
 }
 
 Vector3 PhongReflectanceFunc::sample_dir(const SurfPoint &pt, const Vector3 &outdir) const
 {
-	// TODO randomly generate a sample ray direction
-	return Vector3(0, 1, 0);
+	const Material *mtl = pt.surf->get_material();
+	double shin = mtl->get_attrib("shininess")(pt).x;
+
+	Matrix4x4 mat;
+	Vector3 ldir = outdir.normalized();
+	Vector3 ref = ldir.reflection(pt.normal);
+
+	double ndotl = dot_product(ldir, pt.normal);
+
+	if(1.0 - ndotl > 1e-6) {
+		Vector3 ivec, kvec, jvec;
+
+		// build orthonormal basis
+		if(fabs(ndotl) < 1e-6) {
+			kvec = -ldir;
+			jvec = pt.normal;
+			ivec = cross_product(jvec, kvec);
+		} else {
+			ivec = cross_product(ldir, ref);
+			jvec = ref;
+			kvec = cross_product(ref, ivec);
+		}
+
+		mat.set_column_vector(ivec, 0);
+		mat.set_column_vector(jvec, 1);
+		mat.set_column_vector(kvec, 2);
+	}
+
+	double rnd1 = frand(1.0);
+	double rnd2 = frand(1.0);
+
+	double phi = acos(pow(rnd1, 1.0 / (shin + 1)));
+	double theta = 2.0 * M_PI * rnd2;
+
+	Vector3 v;
+	v.x = cos(theta) * sin(phi);
+	v.y = cos(phi);
+	v.z = sin(theta) * sin(phi);
+	return v.transformed(mat);
 }

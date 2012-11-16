@@ -61,7 +61,11 @@ Vector3 LambertReflectanceFunc::eval(const SurfPoint &pt, const Vector3 &outdir,
 	Vector3 kd = mat->get_attrib("diffuse")(pt);
 
 	// calculate lambert's cosine law and multiply by the diffuse color
-	return kd * fabs(dot_product(pt.normal, indir));
+	double dot = dot_product(pt.normal, indir);
+	if(dot < 0.0) {
+		return Vector3(0, 0, 0);
+	}
+	return kd * dot;
 }
 
 Vector3 LambertReflectanceFunc::sample_dir(const SurfPoint &pt, const Vector3 &outdir) const
