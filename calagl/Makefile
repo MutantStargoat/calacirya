@@ -8,7 +8,7 @@ inc = -I$(libdir)/src -I$(libdir)/libs
 
 CFLAGS = -pedantic -Wall -g $(inc)
 CXXFLAGS = -std=c++11 $(CFLAGS)
-LDFLAGS = $(lib) $(libgl) -Wl,-rpath=$(libdir)
+LDFLAGS = $(lib) $(libgl)
 
 ifeq ($(shell uname -s), Darwin)
 	libgl = -framework OpenGL -framework GLUT

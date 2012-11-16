@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef __APPLE__
 #include <GL/glut.h>
 #else
 #include <GLUT/glut.h>
+#endif
+
+#ifndef GL_RGB16F
+#define GL_RGB16F	0x881B
 #endif
 
 #include "calacirya.h"
@@ -14,13 +19,13 @@ static void cleanup();
 static void disp();
 static void reshape(int x, int y);
 static void keydown(unsigned char key, int x, int y);
+static bool have_glext(const char *name);
 
 static RenderContext ctx;
 
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	glutInitWindowSize(800, 600);
 	glutInitDisplayMode(GLUT_RGB);
 	glutCreateWindow("Calacirya render");
 
@@ -77,7 +82,9 @@ static bool init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, ctx.opt.width, ctx.opt.height, 0, GL_RGB, GL_FLOAT, ctx.framebuf->pixels);
+
+	unsigned int texfmt = have_glext("GL_ARB_texture_float") ? GL_RGB16F : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, texfmt, ctx.opt.width, ctx.opt.height, 0, GL_RGB, GL_FLOAT, ctx.framebuf->pixels);
 
 	atexit(cleanup);
 	return true;
@@ -129,4 +136,13 @@ static void keydown(unsigned char key, int x, int y)
 	if(key == 27) {
 		exit(0);
 	}
+}
+
+static bool have_glext(const char *name)
+{
+	char *ptr = strstr((const char*)glGetString(GL_EXTENSIONS), name);
+	if(ptr && !isalnum(ptr[strlen(name)])) {
+		return true;
+	}
+	return false;
 }
