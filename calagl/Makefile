@@ -11,10 +11,10 @@ CXXFLAGS = -std=c++11 $(CFLAGS)
 LDFLAGS = $(lib) $(libgl)
 
 ifeq ($(shell uname -s), Darwin)
-	libgl = -framework OpenGL -framework GLUT
+	libgl = -framework OpenGL -framework GLUT -lGLEW
 	lib = $(libdir)/libcalacirya.dylib
 else
-	libgl = -lGL -lglut
+	libgl = -lGL -lglut -lGLEW
 	lib = $(libdir)/libcalacirya.so.0.1
 endif
 

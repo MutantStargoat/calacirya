@@ -158,10 +158,8 @@ std::ostream &operator <<(std::ostream &out, const Matrix3x3 &mat);
 
 /** 4x4 matrix */
 class Matrix4x4 {
-private:
-	scalar_t m[4][4];
-
 public:
+	scalar_t m[4][4];
 
 	static Matrix4x4 identity;
 

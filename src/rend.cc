@@ -49,6 +49,8 @@ void render_scanline(const RenderContext *ctx, int scanline, long tmsec)
 			color += scn->trace_ray(ray);
 		}
 
+		color /= ctx->opt.samples;
+
 		*fbptr++ = color.x;
 		*fbptr++ = color.y;
 		*fbptr++ = color.z;
