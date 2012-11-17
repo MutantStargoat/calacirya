@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <GL/glew.h>
 
@@ -71,10 +72,7 @@ static bool init()
 	ctx.opt.samples = 4;
 
 	ctx.framebuf = new Pixmap;
-	ctx.framebuf->width = ctx.opt.width;
-	ctx.framebuf->height = ctx.opt.height;
-	ctx.framebuf->pixels = new float[ctx.framebuf->width * ctx.framebuf->height * 3];
-	memset(ctx.framebuf->pixels, 0, ctx.framebuf->width * ctx.framebuf->height * 3 * sizeof *ctx.framebuf->pixels);
+	ctx.framebuf->create(ctx.opt.width, ctx.opt.height);
 
 	Material *mtl = new Material;
 	mtl->add_brdf(get_brdf("lambert"));
@@ -117,6 +115,8 @@ static bool init()
 		return false;
 	}
 	bind_program(postprog);
+
+	assert(glGetError() == GL_NO_ERROR);
 
 	atexit(cleanup);
 	return true;
@@ -171,6 +171,8 @@ static void disp()
 
 		glFlush();
 	}
+
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 static void reshape(int x, int y)

@@ -27,9 +27,19 @@ public:
 	Pixmap();
 	~Pixmap();
 
-	void release();
+	// copy
+	Pixmap(const Pixmap &p);
+	Pixmap &operator =(const Pixmap &p);
+
+	// move
+	Pixmap(Pixmap &&p);
+	Pixmap &operator =(Pixmap &&p);
+
+	bool create(int xsz, int ysz, float *pixels = 0);
+	void destroy();
+
 	bool load(const char *fname);
 	bool save(const char *fname) const;
 };
 
-#endif	// CALA_PIXMAP_H_
+#endif	/* CALA_PIXMAP_H_ */
