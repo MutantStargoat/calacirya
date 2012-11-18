@@ -23,5 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void render_frame(const RenderContext *ctx, long tmsec = 0);
 void render_scanline(const RenderContext *ctx, int scanline, long tmsec = 0);
+void render_block(const RenderContext *ctx, const FrameBlock &blk, long tmsec = 0);
 
 #endif	// CALA_REND_H_
