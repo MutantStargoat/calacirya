@@ -151,7 +151,13 @@ bool PluginSet<T>::load_plugins_from(const char *path)
 		}
 
 		std::string name = plugin.get_name();
-		printf("  -> %s\n", name.c_str());
+
+		if(plugins.find(name) != plugins.end()) {
+			printf("  %s -> %s (duplicate, ignoring)\n", dent->d_name, name.c_str());
+			continue;
+		} else {
+			printf("  %s -> %s\n", dent->d_name, name.c_str());
+		}
 		num_loaded++;
 
 		plugins[name] = std::move(plugin);
