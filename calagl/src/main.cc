@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <algorithm>
 
 #include <GL/glew.h>
 
@@ -68,18 +70,17 @@ static bool init()
 {
 	calacirya_init();
 
-	ctx.scn = new Scene;
-	ctx.scn->set_background(Vector3(0.04, 0.06, 0.1));
-
 	ctx.opt.width = 640;
 	ctx.opt.height = 300;
 	ctx.opt.samples = 4;
 
+	ctx.scn = new Scene;
+	ctx.scn->set_background(Vector3(0.04, 0.06, 0.1));
+
 	ctx.framebuf = new Pixmap;
-	ctx.framebuf->width = ctx.opt.width;
-	ctx.framebuf->height = ctx.opt.height;
-	ctx.framebuf->pixels = new float[ctx.framebuf->width * ctx.framebuf->height * 3];
-	memset(ctx.framebuf->pixels, 0, ctx.framebuf->width * ctx.framebuf->height * 3 * sizeof *ctx.framebuf->pixels);
+	ctx.framebuf->create(ctx.opt.width, ctx.opt.height);
+
+	ctx.set_block_size(ctx.opt.blksize, ctx.opt.blksize);
 
 	Material *mtl = new Material;
 	mtl->add_brdf(get_brdf("lambert"));
@@ -125,6 +126,8 @@ static bool init()
 	}
 	bind_program(postprog);
 
+	assert(glGetError() == GL_NO_ERROR);
+
 	atexit(cleanup);
 	return true;
 }
@@ -143,11 +146,20 @@ static void disp()
 	if(!done_rend) {
 		float *fbptr = ctx.framebuf->pixels;
 
-		for(int i=0; i<ctx.opt.height; i++) {
-			render_scanline(&ctx, i);
+		std::sort(ctx.blocks, ctx.blocks + ctx.num_blocks,
+			[](const FrameBlock &a, const FrameBlock &b) { return a.prio < b.prio; });
 
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i, ctx.opt.width, 1, GL_RGB, GL_FLOAT, fbptr);
-			fbptr += ctx.opt.width * 3;
+		for(int i=0; i<ctx.num_blocks; i++) {
+			fbptr = ctx.framebuf->pixels +
+				(ctx.blocks[i].y * ctx.framebuf->width + ctx.blocks[i].x) * 3;
+
+			render_block(&ctx, ctx.blocks[i]);
+
+			for(int j=0; j<ctx.blocks[i].height; j++) {
+				glTexSubImage2D(GL_TEXTURE_2D, 0, ctx.blocks[i].x, ctx.blocks[i].y + j,
+						ctx.blocks[i].width, 1, GL_RGB, GL_FLOAT, fbptr);
+				fbptr += ctx.framebuf->width * 3;
+			}
 
 			glBegin(GL_QUADS);
 			glTexCoord2f(0, 1);
@@ -178,6 +190,8 @@ static void disp()
 
 		glFlush();
 	}
+
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 static void reshape(int x, int y)

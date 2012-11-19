@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include <map>
 #ifdef _MSC_VER
 #include <memory.h>
@@ -12,6 +13,8 @@ Shader::Shader(unsigned int type)
 {
 	sdr = glCreateShader(type);
 	compiled = false;
+
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 Shader::~Shader()
@@ -23,6 +26,8 @@ void Shader::set_source(const char *src)
 {
 	glShaderSource(sdr, 1, &src, 0);
 	compiled = false;
+
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 bool Shader::compile()
@@ -110,6 +115,7 @@ SdrProg::SdrProg()
 {
 	prog = glCreateProgram();
 	linked = false;
+	assert(glGetError() == GL_NO_ERROR);
 }
 
 SdrProg::~SdrProg()
@@ -121,6 +127,8 @@ void SdrProg::add_shader(Shader *sdr)
 {
 	if(sdr->compile()) {
 		glAttachShader(prog, sdr->sdr);
+		assert(glGetError() == GL_NO_ERROR);
+
 		shaders.push_back(sdr);
 		linked = false;
 	}
@@ -135,11 +143,11 @@ bool SdrProg::link()
 	glLinkProgram(prog);
 
 	int len;
-	glGetShaderiv(prog, GL_INFO_LOG_LENGTH, &len);
+	glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
 	if(len) {
 		char *buf = (char*)alloca(len + 1);
 		glGetProgramInfoLog(prog, len, &len, buf);
-		buf[len] = 0;
+		assert(glGetError() == GL_NO_ERROR);
 		fprintf(stderr, "linker: %s\n", buf);
 	}
 
@@ -281,5 +289,8 @@ bool bind_program(const SdrProg *prog)
 		return false;
 	}
 	glUseProgram(prog->prog);
+	if(glGetError()) {
+		return false;
+	}
 	return true;
 }

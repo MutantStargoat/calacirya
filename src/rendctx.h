@@ -8,14 +8,16 @@ enum {
 };
 #define ROPT_DEFAULT	(ROPT_MBLUR | ROPT_DOF)
 
-// TODO renderer selection
 struct RenderOptions {
-	int width, height;	// output image dimensions
-	int samples;		// # samples per pixel
+	int width, height;		// output image dimensions
+	int samples;			// # samples per pixel
+	long tmstart, tmend;	// rendering time interval (animation range)
 
-	unsigned int flags;	// bitmask, see above...
+	unsigned int flags;		// bitmask, see above...
 
-	RenderOptions();	// initialize defaults
+	int blksize;			// render block size
+
+	RenderOptions();		// initialize defaults
 
 	void enable(unsigned int bit);
 	void disable(unsigned int bit);
@@ -25,6 +27,7 @@ struct RenderOptions {
 
 class Scene;
 class Pixmap;
+struct FrameBlock;
 
 class RenderContext {
 public:
@@ -32,11 +35,26 @@ public:
 	Scene *scn;
 	Pixmap *framebuf;
 
+	FrameBlock *blocks;
+	int num_blocks;
+
 	RenderContext();
 	~RenderContext();
 
 	bool load_config(const char *fname);
 	bool parse_args(int argc, char **argv);
+
+	void set_block_size(int xsz, int ysz);
 };
+
+struct FrameBlock {
+	int x, y, width, height;
+	int scansize;	// full scanline size in pixels
+	int prio;		// render priority
+
+	FrameBlock();
+	FrameBlock(int x, int y, int xsz, int ysz);
+};
+
 
 #endif	// CALA_RENDCTX_H_

@@ -16,6 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <string.h>
+#include <new>
 #include "pixmap.h"
 #include "imago/imago2.h"
 
@@ -27,14 +29,68 @@ Pixmap::Pixmap()
 
 Pixmap::~Pixmap()
 {
-	release();
+	destroy();
 }
 
-void Pixmap::release()
+Pixmap::Pixmap(const Pixmap &p)
 {
-	if(pixels) {
-		img_free_pixels(pixels);
+	create(p.width, p.height, p.pixels);
+}
+
+Pixmap &Pixmap::operator =(const Pixmap &p)
+{
+	if(&p != this) {
+		destroy();
 	}
+	create(p.width, p.height, p.pixels);
+	return *this;
+}
+
+Pixmap::Pixmap(Pixmap &&p)
+{
+	width = p.width;
+	height = p.height;
+	pixels = p.pixels;
+
+	p.pixels = 0;
+}
+
+Pixmap &Pixmap::operator =(Pixmap &&p)
+{
+	if(&p != this) {
+		width = p.width;
+		height = p.height;
+		pixels = p.pixels;
+
+		p.pixels = 0;
+	}
+	return *this;
+}
+
+
+bool Pixmap::create(int xsz, int ysz, float *pixels)
+{
+	try {
+		this->pixels = new float[xsz * ysz * 3];
+	}
+	catch(std::bad_alloc &e) {
+		return false;
+	}
+
+	if(pixels) {
+		memcpy(this->pixels, pixels, xsz * ysz * 3 * sizeof *this->pixels);
+	} else {
+		memset(this->pixels, 0, xsz * ysz * 3 * sizeof *this->pixels);
+	}
+
+	width = xsz;
+	height = ysz;
+	return true;
+}
+
+void Pixmap::destroy()
+{
+	delete [] pixels;
 
 	width = height = 0;
 	pixels = 0;
@@ -48,11 +104,11 @@ bool Pixmap::load(const char *fname)
 		return false;
 	}
 
-	release();
+	destroy();
+	create(xsz, ysz, pix);
 
-	pixels = pix;
-	width = xsz;
-	height = ysz;
+	// we no longer need the pixel buffer returned by imago.
+	img_free_pixels(pix);
 	return true;
 }
 
