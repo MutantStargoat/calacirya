@@ -49,7 +49,6 @@ public:
 
 struct FrameBlock {
 	int x, y, width, height;
-	int scansize;	// full scanline size in pixels
 	int prio;		// render priority
 
 	FrameBlock();
