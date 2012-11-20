@@ -19,3 +19,6 @@
 # generated makefile
 Makefile
 build/plugin.mk
+
+# auxiliary binaries
+calagl/calagl
