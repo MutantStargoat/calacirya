@@ -53,7 +53,7 @@ class DECLSPEC NCF1
 
 		void source(const char *file);						// Set source file.
 		const char* source() const;							// Get source file.
-		
+
 		void purge();										// Purge the subtree.
 
 		// RETURN CODES:
@@ -66,7 +66,7 @@ class DECLSPEC NCF1
 		// 0. Everything went well.
 		// 1. File I/O error.
 		int dump(const char *file, int create = 1) const;	// Dump to file.
-        
+
 		const char* get(const char *name) const;			// Get property value by name.
 		const char* get(unsigned int index) const;			// Get property value by index.
 		const char* name(unsigned int index) const;			// Get property name by index.
@@ -74,23 +74,23 @@ class DECLSPEC NCF1
 
 		NCF1* group(const char *name) const;				// Get a pointer to a labeled sub group.
 		NCF1* group(unsigned int index) const;				// Get a pointer to an indexed sub group.
-		
+
 		unsigned int count_properties() const;				// Count the properties.
 		unsigned int count_groups() const;					// Count the subgroups.
 		unsigned int query_property(const char* name) const;// Return 1 if the property exists and 0 if not.
 		unsigned int query_group(const char *name) const;	// Return 1 if the group exists and 0 if not.
-		
+
 		const char *name() const;							// Return the node's name.
 
     private:
-	 	// Dissallow copy construction.
+		// Dissallow copy construction.
 		// Note: This will create a shallow copy and therefore it is NEVER used internally.
-	   	// This will be fixed in a future iteration.
+		// This will be fixed in a future iteration.
 	    NCF1(const NCF1&);
 		NCF1 &operator =(const NCF1 &);
 
 		void release();
-		
+
 		/* Expand symbols. */
 		void expand_symbol(std::map<std::string, std::string> &symbols, std::string &s);
 

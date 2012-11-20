@@ -243,7 +243,7 @@ static void passive(int x, int y)
 
 static bool have_glext(const char *name)
 {
-	char *ptr = strstr((const char*)glGetString(GL_EXTENSIONS), name);
+	const char *ptr = strstr((const char*)glGetString(GL_EXTENSIONS), name);
 	if(ptr && !isalnum(ptr[strlen(name)])) {
 		return true;
 	}

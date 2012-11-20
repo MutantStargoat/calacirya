@@ -1,0 +1,17 @@
+# Calacirya configuration file.
+# This file is used to configure the main rendering context.
+framebuffer = {
+	width = 1280
+	height = 800
+	block_size = 32
+}
+
+antialiasing = {
+	samples = 1
+}
+
+options = {
+	# Boolean values
+	motion_blur = 1
+	depth_of_field = 1
+}
