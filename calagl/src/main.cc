@@ -70,9 +70,7 @@ static bool init()
 {
 	calacirya_init();
 
-	ctx.opt.width = 640;
-	ctx.opt.height = 300;
-	ctx.opt.samples = 4;
+	ctx.load_config("calacirya.conf");
 
 	ctx.scn = new Scene;
 	ctx.scn->set_background(Vector3(0.04, 0.06, 0.1));
