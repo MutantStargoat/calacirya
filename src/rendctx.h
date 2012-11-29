@@ -55,5 +55,4 @@ struct FrameBlock {
 	FrameBlock(int x, int y, int xsz, int ysz);
 };
 
-
 #endif	// CALA_RENDCTX_H_

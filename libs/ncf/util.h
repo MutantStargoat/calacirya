@@ -71,7 +71,7 @@ DECLSPEC void to_lower_case(std::string &s);			// Convert to lower case.
 DECLSPEC void to_upper_case(std::string &s);			// Convert to upper case.
 
 DECLSPEC bool to_bool(const std::string &s);			// Convert to boolean type.
-DECLSPEC int to_int(const std::string &s);			// Convert to integer type.
+DECLSPEC int to_int(const std::string &s);				// Convert to integer type.
 DECLSPEC double to_double(const std::string &s);		// Convert to double type.
 
 DECLSPEC void to_string(std::string &out, bool val);	// Convert to string.

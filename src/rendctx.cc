@@ -1,3 +1,5 @@
+#include "ncf/ncf1.h"
+#include "ncf/util.h"
 #include "rendctx.h"
 #include "scene.h"
 #include "pixmap.h"
@@ -45,6 +47,48 @@ RenderContext::~RenderContext()
 
 bool RenderContext::load_config(const char *fname)
 {
+	NCF::NCF1 config;
+
+	config.source(fname);
+
+	if (config.parse()) {
+		return false;
+	}
+
+	/* Todo
+	 * - Add the animation range options.
+	*/
+
+	int w, h, b, s;
+	w = NCF::to_int(config.group("framebuffer")->get("width"));
+	h = NCF::to_int(config.group("framebuffer")->get("height"));
+	b = NCF::to_int(config.group("framebuffer")->get("block_size"));
+	s = NCF::to_int(config.group("antialiasing")->get("samples"));
+	if (w > 0) opt.width = w;
+	if (h > 0) opt.height = h;
+	if (b > 0) opt.blksize = b;
+	if (s > 0) opt.samples = s;
+
+	// Rendering options
+	if (config.group("options")->query_property("motion_blur")) {
+		bool flag = NCF::to_bool(config.group("options")->get("motion_blur"));
+
+		if (flag)
+			opt.enable(ROPT_MBLUR);
+		else
+			opt.disable(ROPT_MBLUR);
+	}
+
+	if (config.group("options")->query_property("depth_of_field")) {
+		bool flag = NCF::to_bool(config.group("options")->get("depth_of_field"));
+
+		if (flag)
+			opt.enable(ROPT_DOF);
+		else
+			opt.disable(ROPT_DOF);
+	}
+
+
 	return false;
 }
 

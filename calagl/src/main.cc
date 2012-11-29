@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <algorithm>
 
@@ -9,6 +10,10 @@
 #include <GL/glut.h>
 #else
 #include <GLUT/glut.h>
+#endif
+
+#ifndef GL_RGB16F
+#define GL_RGB16F	0x881B
 #endif
 
 #include "calacirya.h"
@@ -21,6 +26,7 @@ static void reshape(int x, int y);
 static void keydown(unsigned char key, int x, int y);
 static void keyup(unsigned char key, int x, int y);
 static void passive(int x, int y);
+static bool have_glext(const char *name);
 
 static RenderContext ctx;
 
@@ -42,7 +48,6 @@ static float gamma_value = 2.2;
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	glutInitWindowSize(800, 600);
 	glutInitDisplayMode(GLUT_RGB);
 	glutCreateWindow("Calacirya render");
 
@@ -65,9 +70,7 @@ static bool init()
 {
 	calacirya_init();
 
-	ctx.opt.width = 640;
-	ctx.opt.height = 300;
-	ctx.opt.samples = 4;
+	ctx.load_config("calacirya.conf");
 
 	ctx.scn = new Scene;
 	ctx.scn->set_background(Vector3(0.04, 0.06, 0.1));
@@ -105,7 +108,9 @@ static bool init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, ctx.opt.width, ctx.opt.height, 0, GL_RGB, GL_FLOAT, ctx.framebuf->pixels);
+
+	unsigned int texfmt = have_glext("GL_ARB_texture_float") ? GL_RGB16F : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, texfmt, ctx.opt.width, ctx.opt.height, 0, GL_RGB, GL_FLOAT, ctx.framebuf->pixels);
 
 	// load the gamma correction shader
 	postsdr = new Shader(GL_FRAGMENT_SHADER);
@@ -232,4 +237,13 @@ static void passive(int x, int y)
 		printf("gamma: %f\n", gamma_value);
 		glutPostRedisplay();
 	}
+}
+
+static bool have_glext(const char *name)
+{
+	const char *ptr = strstr((const char*)glGetString(GL_EXTENSIONS), name);
+	if(ptr && !isalnum(ptr[strlen(name)])) {
+		return true;
+	}
+	return false;
 }
