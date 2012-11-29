@@ -80,7 +80,7 @@ static bool init()
 	Material *mtl = new Material;
 	mtl->add_brdf(get_brdf("lambert"));
 	mtl->add_brdf(get_brdf("phong"));
-	mtl->set_attrib("diffuse", Vector3(0.2, 0.3, 0.7));
+	mtl->set_attrib("diffuse", Vector3(0.7, 0.3, 0.2));
 	mtl->set_attrib("specular", Vector3(0.6, 0.6, 0.6));
 	mtl->set_attrib("shininess", 80.0);
 

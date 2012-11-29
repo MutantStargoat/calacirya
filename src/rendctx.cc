@@ -89,7 +89,6 @@ void RenderContext::set_block_size(int xsz, int ysz)
 FrameBlock::FrameBlock()
 {
 	x = y = width = height = 0;
-	scansize = 0;
 	prio = 0;
 }
 
@@ -99,5 +98,5 @@ FrameBlock::FrameBlock(int x, int y, int xsz, int ysz)
 	this->y = y;
 	width = xsz;
 	height = ysz;
-	scansize = prio = 0;
+	prio = 0;
 }
