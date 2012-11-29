@@ -131,7 +131,7 @@ void extract(std::string &s, std::string &t, const char p1, const char p2)
 		return;
 
 	// Extract index positions.
-	unsigned int index=0, index_1=0, index_2=0;
+	int index=0, index_1=0, index_2=0;
 	while ((index++ < s.length()) && (s[index]!=p2));
 	index_2=index;
 	while ((index-- >= 0) && (s[index]!=p1));
