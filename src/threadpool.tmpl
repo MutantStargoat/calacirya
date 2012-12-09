@@ -1,0 +1,206 @@
+/*
+Calacirya is a photorealistic 3D renderer.
+Copyright (C) 2012 John Tsiombikas <nuclear@member.fsf.org>,
+               and Nikos Papadopoulos <nikpapas@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <iostream>
+
+template <typename JobT>
+ThreadPool<JobT>::ThreadPool()
+{
+	work_left = 0;
+	quit = false;
+	threads = 0;
+}
+
+template <typename JobT>
+ThreadPool<JobT>::ThreadPool(const std::function<void(const JobT&)> &workf)
+{
+	work_left = 0;
+	quit = false;
+	threads = 0;
+
+	set_work_func(workf);
+}
+
+template <typename JobT>
+ThreadPool<JobT>::~ThreadPool()
+{
+	if(threads) {
+		stop();
+	}
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::set_work_func(const std::function<void(const JobT&)> &func)
+{
+	work_func = func;
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::set_done_func(const std::function<void(const JobT&)> &func)
+{
+	done_func = func;
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::start(int num_threads)
+{
+	if(num_threads < 1) {
+		num_threads = get_number_processors();
+	}
+
+	threads = new std::thread[num_threads];
+	this->num_threads = num_threads;
+
+	for(int i=0; i<num_threads; i++) {
+		threads[i] = std::thread(&ThreadPool<JobT>::thread_func, this);
+	}
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::stop()
+{
+	workq_mutex.lock();
+
+	workq.clear();
+	work_left = 0;
+	quit = true;
+	pending_cond.notify_all();	// wake the threads up so they can quit
+
+	workq_mutex.unlock();
+
+	printf("waiting for worker threads to terminate\n");
+	for(int i=0; i<num_threads; i++) {
+		threads[i].join();
+	}
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::add_work(const JobT &job)
+{
+	std::unique_lock<std::mutex> lock{workq_mutex};
+
+	workq.push_back(job);
+	work_left++;
+	pending_cond.notify_all();
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::clear_work()
+{
+	std::unique_lock<std::mutex> lock{workq_mutex};
+
+	workq.clear();
+	work_left = 0;
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::wait_work() const
+{
+	// TODO
+}
+
+template <typename JobT>
+bool ThreadPool<JobT>::is_done() const
+{
+	std::unique_lock<std::mutex> lock{workq_mutex};
+	return work_left == 0;
+}
+
+template <typename JobT>
+void ThreadPool<JobT>::thread_func()
+{
+	while(!quit) {
+		// if there's no work to do, just continue sleeping
+		std::unique_lock<std::mutex> lock(workq_mutex);
+		while(!work_left && !quit) {
+			pending_cond.wait(lock);
+		}
+
+		if(work_left) {
+			// there's work to do, grab one from the queue and do it
+			auto job = workq.front();
+			workq.pop_front();
+
+			work_left--;
+			lock.unlock();
+
+			work_func(job);
+
+			// we're done, if there's a done function call it
+			if(done_func) {
+				done_func(job);
+			}
+		}
+	}
+}
+
+/* The following highly platform-specific code detects the number
+ * of processors available in the system. It's used by the thread pool
+ * to autodetect how many threads to spawn.
+ * Currently works on: Linux, BSD, Darwin, and Windows.
+ */
+
+#if defined(__APPLE__) && defined(__MACH__)
+# ifndef __unix__
+#  define __unix__	1
+# endif	/* unix */
+# ifndef __bsd__
+#  define __bsd__	1
+# endif	/* bsd */
+#endif	/* apple */
+
+#if defined(unix) || defined(__unix__)
+#include <unistd.h>
+
+# ifdef __bsd__
+#  include <sys/sysctl.h>
+# endif
+#endif
+
+#if defined(WIN32) || defined(__WIN32__)
+#include <windows.h>
+#endif
+
+template <typename JobT>
+int ThreadPool<JobT>::get_number_processors()
+{
+#if defined(unix) || defined(__unix__)
+# if defined(__bsd__)
+	/* BSD systems provide the num.processors through sysctl */
+	int num, mib[] = {CTL_HW, HW_NCPU};
+	size_t len = sizeof num;
+
+	sysctl(mib, 2, &num, &len, 0, 0);
+	return num;
+
+# elif defined(__sgi)
+	/* SGI IRIX flavour of the _SC_NPROC_ONLN sysconf */
+	return sysconf(_SC_NPROC_ONLN);
+# else
+	/* Linux (and others?) have the _SC_NPROCESSORS_ONLN sysconf */
+	return sysconf(_SC_NPROCESSORS_ONLN);
+# endif	/* bsd/sgi/other */
+
+#elif defined(WIN32) || defined(__WIN32__)
+	/* under windows we need to call GetSystemInfo */
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	return info.dwNumberOfProcessors;
+#endif
+}

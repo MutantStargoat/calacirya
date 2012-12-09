@@ -21,24 +21,54 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "scene.h"
 #include "camera.h"
 #include "pixmap.h"
+#include "threadpool.h"
+#include "rendctx.h"
 
-void render_frame(const RenderContext *ctx, long tmsec)
+
+static void render_worker(const RenderJob &job);
+static void render_done(const RenderJob &job);
+
+
+bool render_init(RenderContext *ctx)
+{
+	ctx->rend_workers.set_work_func(render_worker);
+	ctx->rend_workers.set_done_func(render_done);
+
+	ctx->rend_workers.start(ctx->opt.num_threads);
+	return true;
+}
+
+void render_cleanup(RenderContext *ctx)
+{
+	ctx->rend_workers.stop();
+}
+
+void render_done_func(RenderContext *ctx, void (*done_func)(const FrameBlock&))
+{
+	ctx->block_done_func = done_func;
+}
+
+void render_frame(RenderContext *ctx, long tmsec)
 {
 	std::sort(ctx->blocks, ctx->blocks + ctx->num_blocks,
 			[](const FrameBlock &a, const FrameBlock &b) { return a.prio < b.prio; });
 
+	int frmno = ++ctx->current_frame;
+
+	// add all the blocks to the work queue
 	for(int i=0; i<ctx->num_blocks; i++) {
-		render_block(ctx, ctx->blocks[i], tmsec);
+		RenderJob job = {ctx, ctx->blocks + i, tmsec, frmno};
+		ctx->rend_workers.add_work(job);
 	}
 }
 
-void render_scanline(const RenderContext *ctx, int scanline, long tmsec)
+void render_scanline(RenderContext *ctx, int scanline, long tmsec)
 {
 	FrameBlock bscanln(0, scanline, ctx->opt.width, 1);
 	render_block(ctx, bscanln, tmsec);
 }
 
-void render_block(const RenderContext *ctx, const FrameBlock &blk, long tmsec)
+void render_block(RenderContext *ctx, const FrameBlock &blk, long tmsec)
 {
 	const Scene *scn = ctx->scn;
 	const Camera *cam = scn->get_active_camera();
@@ -68,3 +98,21 @@ void render_block(const RenderContext *ctx, const FrameBlock &blk, long tmsec)
 	}
 }
 
+
+static void render_worker(const RenderJob &job)
+{
+	int curr_frame = job.ctx->current_frame;
+	if(job.frame_number < curr_frame) {
+		return;	// skip jobs leftover from previous frames
+	}
+
+	render_block(job.ctx, *job.blk, job.tmsec);
+}
+
+static void render_done(const RenderJob &job)
+{
+	// call the user-supplied completion notification callback
+	if(job.ctx->block_done_func) {
+		job.ctx->block_done_func(*job.blk);
+	}
+}

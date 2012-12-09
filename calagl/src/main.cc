@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <queue>
 #include <algorithm>
+#include <thread>
 
 #include <GL/glew.h>
 
@@ -22,6 +24,7 @@
 static bool init();
 static void cleanup();
 static void disp();
+static void block_done(const FrameBlock &blk);
 static void reshape(int x, int y);
 static void keydown(unsigned char key, int x, int y);
 static void keyup(unsigned char key, int x, int y);
@@ -44,6 +47,9 @@ static const char *postsdr_source =
 
 static float gamma_value = 2.2;
 
+static std::queue<FrameBlock> dirty_areas;
+static std::mutex dirty_mutex;
+static std::atomic<int> dirty_count;
 
 int main(int argc, char **argv)
 {
@@ -71,6 +77,9 @@ static bool init()
 	calacirya_init();
 
 	ctx.load_config("calacirya.conf");
+
+	render_init(&ctx);
+	render_done_func(&ctx, block_done);
 
 	ctx.scn = new Scene;
 	ctx.scn->set_background(Vector3(0.04, 0.06, 0.1));
@@ -126,6 +135,9 @@ static bool init()
 
 	assert(glGetError() == GL_NO_ERROR);
 
+	// start rendering
+	render_frame(&ctx);
+
 	atexit(cleanup);
 	return true;
 }
@@ -137,59 +149,60 @@ static void cleanup()
 
 static void disp()
 {
-	static bool done_rend;
+	// update dirty areas of the output texture
+	while(dirty_count > 0) {
+		dirty_mutex.lock();
+		FrameBlock blk = dirty_areas.front();
+		dirty_areas.pop();
+		dirty_count--;
+		dirty_mutex.unlock();
+
+		float *pix = ctx.framebuf->pixels + (blk.y * ctx.framebuf->width + blk.x) * 3;
+
+		for(int i=0; i<blk.height; i++) {
+			glTexSubImage2D(GL_TEXTURE_2D, 0, blk.x, blk.y + i, blk.width, 1, GL_RGB, GL_FLOAT, pix);
+			pix += ctx.framebuf->width * 3;
+		}
+	}
+
 
 	postprog->set_uniform("inv_gamma", 1.0f / gamma_value);
 
-	if(!done_rend) {
-		float *fbptr = ctx.framebuf->pixels;
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 1);
+	glVertex2f(-1, -1);
+	glTexCoord2f(1, 1);
+	glVertex2f(1, -1);
+	glTexCoord2f(1, 0);
+	glVertex2f(1, 1);
+	glTexCoord2f(0, 0);
+	glVertex2f(-1, 1);
+	glEnd();
 
-		std::sort(ctx.blocks, ctx.blocks + ctx.num_blocks,
-			[](const FrameBlock &a, const FrameBlock &b) { return a.prio < b.prio; });
-
-		for(int i=0; i<ctx.num_blocks; i++) {
-			fbptr = ctx.framebuf->pixels +
-				(ctx.blocks[i].y * ctx.framebuf->width + ctx.blocks[i].x) * 3;
-
-			render_block(&ctx, ctx.blocks[i]);
-
-			for(int j=0; j<ctx.blocks[i].height; j++) {
-				glTexSubImage2D(GL_TEXTURE_2D, 0, ctx.blocks[i].x, ctx.blocks[i].y + j,
-						ctx.blocks[i].width, 1, GL_RGB, GL_FLOAT, fbptr);
-				fbptr += ctx.framebuf->width * 3;
-			}
-
-			glBegin(GL_QUADS);
-			glTexCoord2f(0, 1);
-			glVertex2f(-1, -1);
-			glTexCoord2f(1, 1);
-			glVertex2f(1, -1);
-			glTexCoord2f(1, 0);
-			glVertex2f(1, 1);
-			glTexCoord2f(0, 0);
-			glVertex2f(-1, 1);
-			glEnd();
-
-			glFlush();
-		}
-
-		done_rend = true;
-	} else {
-		glBegin(GL_QUADS);
-		glTexCoord2f(0, 1);
-		glVertex2f(-1, -1);
-		glTexCoord2f(1, 1);
-		glVertex2f(1, -1);
-		glTexCoord2f(1, 0);
-		glVertex2f(1, 1);
-		glTexCoord2f(0, 0);
-		glVertex2f(-1, 1);
-		glEnd();
-
-		glFlush();
-	}
+	glFlush();
 
 	assert(glGetError() == GL_NO_ERROR);
+}
+
+/* this function is called from the context of the worker thread
+ * so it can't call any OpenGL functions directly. Instead it grabs
+ * the mutex, shoves he dirty areas into a list, and notifies glut
+ * to redisplay.
+ *
+ * XXX possible race condition: what if this is called while we're in
+ * the dirty texture update loop in display, then when it's done updating
+ * releases the mutex, we grab it and call glutPostRedisplay before the
+ * display callback is done, and then the GLUT implementation marks the redisplay
+ * as handled when display returns?
+ */
+static void block_done(const FrameBlock &blk)
+{
+	dirty_mutex.lock();
+	dirty_areas.push(blk);
+	dirty_count++;
+	dirty_mutex.unlock();
+
+	glutPostRedisplay();
 }
 
 static void reshape(int x, int y)

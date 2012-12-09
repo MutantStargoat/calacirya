@@ -14,6 +14,7 @@ RenderOptions::RenderOptions()
 	flags = ROPT_DEFAULT;
 
 	blksize = 32;
+	num_threads = 0;	// auto-detect
 }
 
 void RenderOptions::enable(unsigned int bit)
@@ -59,17 +60,21 @@ bool RenderContext::load_config(const char *fname)
 	 * - Add the animation range options.
 	*/
 
-	int w, h, b, s;
-	w = NCF::to_int(config.group("framebuffer")->get("width"));
-	h = NCF::to_int(config.group("framebuffer")->get("height"));
-	b = NCF::to_int(config.group("framebuffer")->get("block_size"));
-	s = NCF::to_int(config.group("antialiasing")->get("samples"));
+	int w = NCF::to_int(config.group("framebuffer")->get("width"));
+	int h = NCF::to_int(config.group("framebuffer")->get("height"));
+	int b = NCF::to_int(config.group("framebuffer")->get("block_size"));
+	int s = NCF::to_int(config.group("antialiasing")->get("samples"));
 	if (w > 0) opt.width = w;
 	if (h > 0) opt.height = h;
 	if (b > 0) opt.blksize = b;
 	if (s > 0) opt.samples = s;
 
 	// Rendering options
+	int nthr = NCF::to_int(config.group("options")->get("threads"));
+	if(nthr > 0) {
+		opt.num_threads = nthr;
+	}
+
 	if (config.group("options")->query_property("motion_blur")) {
 		bool flag = NCF::to_bool(config.group("options")->get("motion_blur"));
 
@@ -94,7 +99,38 @@ bool RenderContext::load_config(const char *fname)
 
 bool RenderContext::parse_args(int argc, char **argv)
 {
-	return false;
+	for(int i=1; i<argc; i++) {
+		if(argv[i][0] == '-') {
+			if(strcmp(argv[i], "-size") == 0) {
+				int x, y;
+				if(sscanf(argv[++i], "%dx%d", &x, &y) == 2) {
+					opt.width = x;
+					opt.height = y;
+				} else {
+					fprintf(stderr, "-size must be followed by <width>x<height>\n");
+					return false;
+				}
+
+			} else if(strcmp(argv[i], "-threads") == 0) {
+				char *endp;
+				int thr = strtol(argv[++i], &endp, 10);
+				if(endp != argv[i]) {
+					opt.num_threads = thr;
+				} else {
+					fprintf(stderr, "-threads must be followed by the number of threads to use\n");
+					return false;
+				}
+			} // TODO more...
+		} else {
+			if(!scn) {
+				scn = new Scene;
+			}
+			if(!scn->load(argv[i])) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 #define MIN(a, b)	((a < b) ? (a) : (b))

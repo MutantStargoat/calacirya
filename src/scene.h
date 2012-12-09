@@ -42,6 +42,10 @@ public:
 	Scene();
 	~Scene();
 
+	bool load(const char *fname);
+	bool load(FILE *fp);
+	// TODO add load with custom I/O
+
 	void set_background(const Vector3 &col);
 
 	void add_surface(const Surface *surf);

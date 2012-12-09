@@ -41,6 +41,29 @@ Scene::~Scene()
 	delete accel;
 }
 
+bool Scene::load(const char *fname)
+{
+	FILE *fp;
+
+	if(!(fp = fopen(fname, "rb"))) {
+		fprintf(stderr, "failed to load scene file: %s: %s\n", fname, strerror(errno));
+		return false;
+	}
+
+	bool res = load(fp);
+	if(!res) {
+		fprintf(stderr, "failed to load scene file: %s\n", fname);
+	}
+	fclose(fp);
+	return res;
+}
+
+bool Scene::load(FILE *fp)
+{
+	// TODO
+	return false;
+}
+
 void Scene::set_background(const Vector3 &col)
 {
 	bgcolor = col;

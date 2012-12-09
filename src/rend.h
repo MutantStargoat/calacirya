@@ -19,10 +19,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CALA_REND_H_
 #define CALA_REND_H_
 
-#include "rendctx.h"
+class RenderContext;
+struct FrameBlock;
 
-void render_frame(const RenderContext *ctx, long tmsec = 0);
-void render_scanline(const RenderContext *ctx, int scanline, long tmsec = 0);
-void render_block(const RenderContext *ctx, const FrameBlock &blk, long tmsec = 0);
+struct RenderJob {
+	RenderContext *ctx;
+	const FrameBlock *blk;
+	long tmsec;
+	int frame_number;
+};
+
+bool render_init(RenderContext *ctx);
+void render_cleanup(RenderContext *ctx);
+
+// registers a function to be called whenever a block has finished rendering
+void render_done_func(RenderContext *ctx, void (*done_func)(const FrameBlock&));
+
+void render_frame(RenderContext *ctx, long tmsec = 0);
+void render_scanline(RenderContext *ctx, int scanline, long tmsec = 0);
+void render_block(RenderContext *ctx, const FrameBlock &blk, long tmsec = 0);
 
 #endif	// CALA_REND_H_

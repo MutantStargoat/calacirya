@@ -1,6 +1,11 @@
 #ifndef CALA_RENDCTX_H_
 #define CALA_RENDCTX_H_
 
+#include <functional>
+#include <atomic>
+#include "threadpool.h"
+#include "rend.h"
+
 // global overrides to disable features if needed
 enum {
 	ROPT_MBLUR	= 1,	// motion blur
@@ -16,6 +21,7 @@ struct RenderOptions {
 	unsigned int flags;		// bitmask, see above...
 
 	int blksize;			// render block size
+	int num_threads;		// how many threads to use (0 means auto-detect)
 
 	RenderOptions();		// initialize defaults
 
@@ -28,6 +34,7 @@ struct RenderOptions {
 class Scene;
 class Pixmap;
 struct FrameBlock;
+struct RenderJob;
 
 class RenderContext {
 public:
@@ -37,6 +44,10 @@ public:
 
 	FrameBlock *blocks;
 	int num_blocks;
+	std::function<void(const FrameBlock&)> block_done_func;
+
+	ThreadPool<RenderJob> rend_workers;
+	std::atomic<int> current_frame;
 
 	RenderContext();
 	~RenderContext();

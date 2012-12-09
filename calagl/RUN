@@ -1,0 +1,24 @@
+#!/bin/sh
+
+sys=`uname -s`
+if [ "$sys" = Darwin ]; then
+	export DYLD_LIBRARY_PATH=.
+
+	if ! stat libcalacirya.dylib >/dev/null 2>&1; then
+		ln -s ../libcalacirya.dylib .
+	fi
+else
+	export LD_LIBRARY_PATH=.
+
+	soname=libcalacirya.so.0
+	devlink=libcalacirya.so
+
+	if ! stat $soname >/dev/null 2>&1; then
+		ln -s ../libcalacirya.so.0.1 $soname
+	fi
+	if ! stat $devlink >/dev/null 2>&1; then
+		ln -s ../libcalacirya.so.0.1 $devlink
+	fi
+fi
+
+./calagl $*
