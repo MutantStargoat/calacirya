@@ -4,6 +4,8 @@
 #include "scene.h"
 #include "pixmap.h"
 
+using namespace calacirya;
+
 // defaults
 RenderOptions::RenderOptions()
 {

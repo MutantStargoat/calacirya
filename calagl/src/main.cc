@@ -21,6 +21,8 @@
 #include "calacirya.h"
 #include "sdr.h"
 
+using namespace calacirya;
+
 static bool init();
 static void cleanup();
 static void disp();
@@ -64,7 +66,7 @@ int main(int argc, char **argv)
 
 	glewInit();
 
-	if(!init()) {
+	if(!::init()) {
 		return 1;
 	}
 
@@ -74,7 +76,7 @@ int main(int argc, char **argv)
 
 static bool init()
 {
-	calacirya_init();
+	calacirya::init();
 
 	ctx.load_config("calacirya.conf");
 
@@ -144,7 +146,7 @@ static bool init()
 
 static void cleanup()
 {
-	calacirya_destroy();
+	calacirya::destroy();
 }
 
 static void disp()

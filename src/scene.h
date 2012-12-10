@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "light.h"
 #include "rayaccel.h"
 
+namespace calacirya {
+
 // XXX the scene owns all objects
 
 class Scene {
@@ -65,5 +67,7 @@ public:
 	 */
 	bool find_hit(const Ray &ray, SurfPoint *pt) const;
 };
+
+}	// namespace calacirya
 
 #endif	/* CALA_SCENE_H_ */

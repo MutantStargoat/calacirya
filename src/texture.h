@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vmath/vector.h"
 #include "pixmap.h"
 
+namespace calacirya {
+
 // TODO add a plugin-based procedural texture subclass
 
 class Texture {
@@ -61,5 +63,7 @@ public:
 
 	virtual Vector3 lookup(const Vector3 &texcoord) const;
 };
+
+}	// namespace calacirya
 
 #endif	// CALA_TEXTURE_H_

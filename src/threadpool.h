@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <list>
 
+namespace calacirya {
+
 template <typename JobT>
 class ThreadPool {
 private:
@@ -61,6 +63,8 @@ public:
 	void wait_work() const;
 	bool is_done() const;
 };
+
+}	// namespace calacirya
 
 #include "threadpool.tmpl"
 

@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "surface.h"
 #include "vmath/vector.h"
 
+namespace calacirya {
+
 // BRDF type bitmask, returned by ReflectanceFunc::get_type()
 enum {
 	BRDF_DIFFUSE = 1,
@@ -57,5 +59,7 @@ public:
 void load_brdf_plugins();
 void unload_brdf_plugins();
 ReflectanceFunc *get_brdf(const char *name);
+
+}	// namespace calacirya
 
 #endif	// CALA_BRDF_H_

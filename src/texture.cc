@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "texture.h"
 
+using namespace calacirya;
+
 static inline Vector3 tex_lookup(const Pixmap *pixmap, const Vector2 &tc);
 
 Texture::~Texture()

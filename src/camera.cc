@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "camera.h"
 #include "vmath/vmath.h"
 
+using namespace calacirya;
+
 static void calc_sample_pos_rec(int sidx, float xsz, float ysz, float *pos);
 
 

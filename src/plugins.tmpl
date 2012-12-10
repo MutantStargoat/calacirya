@@ -19,6 +19,8 @@
 #define __func__	__FUNCTION__
 #endif
 
+namespace calacirya {
+
 template <typename T>
 Plugin<T>::Plugin()
 {
@@ -213,6 +215,8 @@ bool PluginSet<T>::empty() const
 {
 	return plugins.empty();
 }
+
+}	// namespace calacirya
 
 #if defined(__GNUC__) || defined(_MSC_VER)
 #undef __func__

@@ -24,7 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "brdf.h"
 #include "plugins.h"
 
+using namespace calacirya;
+
 static PluginSet<ReflectanceFunc> brdfs;
+
+namespace calacirya {
 
 ReflectanceFunc::~ReflectanceFunc()
 {
@@ -70,3 +74,5 @@ ReflectanceFunc *get_brdf(const char *name)
 {
 	return brdfs[name];
 }
+
+} // namespace calacirya

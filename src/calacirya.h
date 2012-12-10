@@ -29,7 +29,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "pixmap.h"
 
-bool calacirya_init();
-void calacirya_destroy();
+namespace calacirya {
+
+bool init();
+void destroy();
+
+}	// namespace calacirya
 
 #endif	// CALACIRYA_H_

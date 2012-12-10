@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "brdf.h"
 #include "material.h"
 
+using namespace calacirya;
+
 Scene::Scene()
 {
 	accel = 0;

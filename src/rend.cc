@@ -24,10 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "threadpool.h"
 #include "rendctx.h"
 
+using namespace calacirya;
+
 
 static void render_worker(const RenderJob &job);
 static void render_done(const RenderJob &job);
 
+namespace calacirya {
 
 bool render_init(RenderContext *ctx)
 {
@@ -97,6 +100,8 @@ void render_block(RenderContext *ctx, const FrameBlock &blk, long tmsec)
 		fbptr += slskip;
 	}
 }
+
+}	// namespace calacirya
 
 
 static void render_worker(const RenderJob &job)

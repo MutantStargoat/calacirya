@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "pixmap.h"
 #include "imago/imago2.h"
 
+using namespace calacirya;
+
 Pixmap::Pixmap()
 {
 	width = height = 0;

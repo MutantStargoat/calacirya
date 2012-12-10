@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CALA_REND_H_
 #define CALA_REND_H_
 
+namespace calacirya {
+
 class RenderContext;
 struct FrameBlock;
 
@@ -38,5 +40,7 @@ void render_done_func(RenderContext *ctx, void (*done_func)(const FrameBlock&));
 void render_frame(RenderContext *ctx, long tmsec = 0);
 void render_scanline(RenderContext *ctx, int scanline, long tmsec = 0);
 void render_block(RenderContext *ctx, const FrameBlock &blk, long tmsec = 0);
+
+}	// namespace calacirya
 
 #endif	// CALA_REND_H_

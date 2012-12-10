@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "surface.h"
 #include "brdf.h"
 
+namespace calacirya {
+
 class MatAttrib {
 private:
 	Track3 value;
@@ -68,6 +70,8 @@ public:
 	MatAttrib &operator [](const char *attrname);
 	const MatAttrib &operator [](const char *attrname) const;
 };
+
+}	// namespace calacirya
 
 #include "material.inl"
 

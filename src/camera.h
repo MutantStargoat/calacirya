@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xform_node.h"
 #include "vmath/ray.h"
 
+namespace calacirya {
+
 class Camera : public XFormNode {
 protected:
 	float fov;
@@ -33,5 +35,7 @@ public:
 
 	Ray get_primary_ray(int x, int y, int xsz, int ysz, int sample, long tmsec = 0) const;
 };
+
+}	// namespace calacirya
 
 #endif	// CAMERA_H_

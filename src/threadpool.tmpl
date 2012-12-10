@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
+namespace calacirya {
+
 template <typename JobT>
 ThreadPool<JobT>::ThreadPool()
 {
@@ -150,6 +152,8 @@ void ThreadPool<JobT>::thread_func()
 	}
 }
 
+}	// namespace calacirya
+
 /* The following highly platform-specific code detects the number
  * of processors available in the system. It's used by the thread pool
  * to autodetect how many threads to spawn.
@@ -176,6 +180,8 @@ void ThreadPool<JobT>::thread_func()
 #if defined(WIN32) || defined(__WIN32__)
 #include <windows.h>
 #endif
+
+namespace calacirya {
 
 template <typename JobT>
 int ThreadPool<JobT>::get_number_processors()
@@ -204,3 +210,5 @@ int ThreadPool<JobT>::get_number_processors()
 	return info.dwNumberOfProcessors;
 #endif
 }
+
+}	// namespace calacirya

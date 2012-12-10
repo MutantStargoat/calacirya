@@ -19,13 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "calacirya.h"
 #include "brdf.h"
 
-bool calacirya_init()
+namespace calacirya {
+
+bool init()
 {
 	load_brdf_plugins();
 	return true;
 }
 
-void calacirya_destroy()
+void destroy()
 {
 	unload_brdf_plugins();
 }
+
+}	// namespace calacirya

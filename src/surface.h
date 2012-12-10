@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vmath/vector.h"
 #include "vmath/ray.h"
 
+namespace calacirya {
+
 class Surface;
 class Material;
 
@@ -49,5 +51,6 @@ public:
 	virtual bool intersect(const Ray &ray, SurfPoint *sp) const = 0;
 };
 
+}	// namespace calacirya
 
 #endif	/* CALA_SURFACE_H_ */

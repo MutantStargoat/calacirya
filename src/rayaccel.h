@@ -22,10 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vmath/ray.h"
 #include "surface.h"
 
+namespace calacirya {
+
 class RayAccel {
 public:
 	virtual ~RayAccel() = 0;
 	virtual bool find_hit(const Ray &ray, SurfPoint *pt) const = 0;
 };
+
+}	// namespace calacirya
 
 #endif	// CALA_RAYACCEL_H_

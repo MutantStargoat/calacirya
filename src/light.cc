@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "light.h"
 
+using namespace calacirya;
+
 Light::Light()
 {
 	intensity.set_default(1.0);

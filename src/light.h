@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "xform_node.h"
 
+namespace calacirya {
+
 class Light : public XFormNode {
 private:
 	Track intensity;
@@ -32,5 +34,7 @@ public:
 
 	virtual Vector3 get_color(long tmsec = 0) const;
 };
+
+}	// namespace calacirya
 
 #endif	/* CALA_LIGHT_H_ */

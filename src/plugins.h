@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
+namespace calacirya {
+
 template <typename T>
 class Plugin {
 private:
@@ -68,6 +70,7 @@ public:
 	bool empty() const;
 };
 
+}	// namespace calacirya
 
 #include "plugins.tmpl"
 

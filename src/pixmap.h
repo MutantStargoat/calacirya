@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CALA_PIXMAP_H_
 #define CALA_PIXMAP_H_
 
+namespace calacirya {
+
 class Pixmap {
 public:
 	int width, height;
@@ -41,5 +43,7 @@ public:
 	bool load(const char *fname);
 	bool save(const char *fname) const;
 };
+
+}	// namespace calacirya
 
 #endif	/* CALA_PIXMAP_H_ */
