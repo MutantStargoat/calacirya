@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CALA_THREAD_POOL_H_
 
 #include <thread>
+#include <atomic>
 #include <mutex>
 #include <condition_variable>
 #include <functional>
@@ -31,11 +32,13 @@ template <typename JobT>
 class ThreadPool {
 private:
 	std::list<JobT> workq;
-	std::mutex workq_mutex;
+	std::mutex workq_mutex, done_mutex;
 	std::condition_variable pending_cond;
+	mutable std::condition_variable done_cond;
 
 	std::thread *threads;
 	int num_threads;
+	std::atomic<int> num_active_threads;
 
 	int work_left;
 

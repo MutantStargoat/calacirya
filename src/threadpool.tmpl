@@ -17,8 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-
 namespace calacirya {
 
 template <typename JobT>
@@ -27,6 +25,7 @@ ThreadPool<JobT>::ThreadPool()
 	work_left = 0;
 	quit = false;
 	threads = 0;
+	num_threads = num_active_threads = 0;
 }
 
 template <typename JobT>
@@ -35,6 +34,7 @@ ThreadPool<JobT>::ThreadPool(const std::function<void(const JobT&)> &workf)
 	work_left = 0;
 	quit = false;
 	threads = 0;
+	num_threads = num_active_threads = 0;
 
 	set_work_func(workf);
 }
@@ -90,6 +90,9 @@ void ThreadPool<JobT>::stop()
 	for(int i=0; i<num_threads; i++) {
 		threads[i].join();
 	}
+
+	delete [] threads;
+	num_threads = num_active_threads = 0;
 }
 
 template <typename JobT>
@@ -114,14 +117,17 @@ void ThreadPool<JobT>::clear_work()
 template <typename JobT>
 void ThreadPool<JobT>::wait_work() const
 {
-	// TODO
+	std::unique_lock<std::mutex> lock{done_mutex};
+	while(num_active_threads > 0) {
+		done_cond.wait(lock);
+	}
 }
 
 template <typename JobT>
 bool ThreadPool<JobT>::is_done() const
 {
 	std::unique_lock<std::mutex> lock{workq_mutex};
-	return work_left == 0;
+	return num_active_threads == 0;
 }
 
 template <typename JobT>
@@ -140,14 +146,21 @@ void ThreadPool<JobT>::thread_func()
 			workq.pop_front();
 
 			work_left--;
+			num_active_threads++;
 			lock.unlock();
 
 			work_func(job);
 
-			// we're done, if there's a done function call it
+			num_active_threads--;
+
+			// we're done signal the condition and call the done callback
+			done_mutex.lock();
+			done_cond.notify_all();
+
 			if(done_func) {
 				done_func(job);
 			}
+			done_mutex.unlock();
 		}
 	}
 }

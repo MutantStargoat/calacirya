@@ -21,6 +21,12 @@
 #include "calacirya.h"
 #include "sdr.h"
 
+#ifdef __unix__
+#include <GL/glx.h>
+Display *dpy;
+Window win;
+#endif
+
 using namespace calacirya;
 
 static bool init();
@@ -55,8 +61,12 @@ static std::atomic<int> dirty_count;
 
 int main(int argc, char **argv)
 {
+#ifdef __unix__
+	XInitThreads();
+#endif
+
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGB);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutCreateWindow("Calacirya render");
 
 	glutDisplayFunc(disp);
@@ -86,7 +96,7 @@ static bool init()
 	ctx.scn = new Scene;
 	ctx.scn->set_background(Vector3(0.04, 0.06, 0.1));
 
-	ctx.framebuf = new Pixmap;
+	ctx.framebuf = new calacirya::Pixmap;
 	ctx.framebuf->create(ctx.opt.width, ctx.opt.height);
 
 	ctx.set_block_size(ctx.opt.blksize, ctx.opt.blksize);
@@ -137,6 +147,11 @@ static bool init()
 
 	assert(glGetError() == GL_NO_ERROR);
 
+#ifdef __unix__
+	dpy = glXGetCurrentDisplay();
+	win = glXGetCurrentDrawable();
+#endif
+
 	// start rendering
 	render_frame(&ctx);
 
@@ -181,7 +196,7 @@ static void disp()
 	glVertex2f(-1, 1);
 	glEnd();
 
-	glFlush();
+	glutSwapBuffers();
 
 	assert(glGetError() == GL_NO_ERROR);
 }
@@ -205,6 +220,18 @@ static void block_done(const FrameBlock &blk)
 	dirty_mutex.unlock();
 
 	glutPostRedisplay();
+
+#ifdef __unix__
+	// force a redisplay by sending an Expose event throught the X server
+	/*XEvent ev;
+	ev.type = Expose;
+	ev.xexpose.window = win;
+	ev.xexpose.x = ev.xexpose.y = 0;
+	ev.xexpose.width = ev.xexpose.height = 0;
+	ev.xexpose.count = 0;
+
+	XSendEvent(dpy, win, False, 0, &ev);*/
+#endif
 }
 
 static void reshape(int x, int y)
